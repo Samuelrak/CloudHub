@@ -1,18 +1,15 @@
 import mysql.connector
 
-
 db_config = {
     'host': 'localhost',
-    'user': '',
-    'password': 'db123',
-    'database': 'db123',
+    'user': 'root',
+    'password': '',
+    'database': 'mysql',
 }
-
 
 def connect():
     connection = mysql.connector.connect(**db_config)
     return connection
-
 
 def create_table():
     connection = connect()
@@ -32,7 +29,6 @@ def create_table():
     cursor.close()
     connection.close()
 
-
 def insert_user(username, email):
     connection = connect()
     cursor = connection.cursor()
@@ -45,7 +41,6 @@ def insert_user(username, email):
 
     cursor.close()
     connection.close()
-
 
 def get_all_users():
     connection = connect()
@@ -64,10 +59,9 @@ def get_all_users():
 if __name__ == "__main__":
     create_table()
 
-    insert_user("5")
-    insert_user("6")
+    insert_user("user5", "user5@example.com")  # Provide both username and email
+    insert_user("user6", "user6@example.com")  # Provide both username and email
 
     users = get_all_users()
     for user in users:
         print(user)
-        print("hello")

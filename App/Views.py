@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import File, Folder, ShareableLink
+from Models import File, Folder, ShareableLink
 
 def file_list(request):
     files = File.objects.filter(user=request.user)

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import File, Folder, ShareableLink
+from Models import File, Folder, ShareableLink
 
 @admin.register(File)
 class FileAdmin(admin.ModelAdmin):
