@@ -1,7 +1,10 @@
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
+from django.shortcuts import render
 
+def my_template_view(request):
+    return render(request, 'index.html')
 
 class UserRegistrationView(View):
     def get(self, request):
@@ -34,3 +37,13 @@ class FileUploadView(LoginRequiredMixin, View):
 class FileDownloadView(LoginRequiredMixin, View):
     def get(self, request, file_id):
         return HttpResponse(f"File Download View for File ID: {file_id}")
+
+class FolderDeleteView(LoginRequiredMixin, View):
+    def post(self, request, folder_id):
+        # Implement folder deletion logic here
+        return HttpResponse("Folder deleted successfully")
+
+class GenerateShareableLinkView(LoginRequiredMixin, View):
+    def post(self, request, file_id):
+        # Implement shareable link generation logic here
+        return HttpResponse("Shareable link generated successfully")
