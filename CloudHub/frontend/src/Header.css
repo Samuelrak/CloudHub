@@ -1,0 +1,28 @@
+.header { background-color: #4a148c; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+
+.logo { width: 150px; }
+
+.logo img { width: 100%; height: auto; }
+
+.menu { flex: 1; }
+
+.menu ul { list-style: none; display: flex; align-items: center; justify-content: center; }
+
+.menu li { margin: 0 10px; }
+
+.menu a {text-decoration: none; font-weight: bold; }
+
+.menu a.active {color: green; }
+
+.menu a:not(.active) {  color: white;  }
+
+.user { display: flex; align-items: center; }
+
+.user img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; }
+
+.user span { color: white; font-weight: bold; }
+
+.arrow { color: white; font-weight: bold; margin-left: 10px; }
+
+
+
