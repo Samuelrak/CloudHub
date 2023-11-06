@@ -1,23 +1,8 @@
 import React from 'react';
 import './Header.css'; 
 import { NavLink } from 'react-router-dom';
+import DropdownMenu from './dropdownmenu.js';
 
-// function Header() {
-//   return (
-//     <header> 
-//       <h1 id="logo">Your Website Header</h1>
-//         <nav>
-//         <ul>
-//         <li><a href="/">Home</a></li>
-//         <li><a href="/pricing">Pricing</a></li>
-//         <li><a href="/about">About Us</a></li>
-//         <li><a href="/faq">FAQ</a></li>
-//         <li><a href="/contact">Contact</a></li>
-//       </ul>
-//         </nav>
-//     </header>
-//   );
-// }
 function Header() {
   return (
     <div className="header">
@@ -57,6 +42,7 @@ function Header() {
         <img src="user.png" alt="user icon" />
         <span>myname</span>
         <i className="arrow">▼</i>
+        <DropdownMenu /> {}
       </div>
     </div>
   );
