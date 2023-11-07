@@ -1,28 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import './dropdownmenu.css';
+import { useAuth } from './AuthContext.js'; // Import the useAuth hook
 
 function DropdownMenu() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const handleLogin = () => {
-
-    setIsLoggedIn(true);
-  };
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
 
   const handleLogout = () => {
-
     setIsLoggedIn(false);
   };
 
   return (
     <div className="dropdown-container">
       {isLoggedIn && (
-        <button className="dropdown-button" onClick={toggleDropdown}>
+        <button className="dropdown-button">
           Toggle Dropdown
         </button>
       )}
@@ -32,13 +23,17 @@ function DropdownMenu() {
             <button className="dropdown-button">Settings</button>
           </li>
           <li>
-            <button className="dropdown-button" onClick={handleLogout}>Logout</button>
+            <button className="dropdown-button" onClick={handleLogout}>
+              Logout
+            </button>
           </li>
         </ul>
       ) : (
-        <button className="login-button" onClick={handleLogin}>
-          Login
-        </button>
+        <Link to="/login">
+          <button className="login-button">
+            Login
+          </button>
+        </Link>
       )}
     </div>
   );
