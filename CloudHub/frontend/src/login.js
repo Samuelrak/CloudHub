@@ -1,46 +1,45 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null); 
 
   const handleLogin = () => {
-    // Your authentication logic here.
-    // Example: make an API request to your Python backend to authenticate the user.
+    axios.defaults.headers.common['X-CSRFToken'] = window.csrf_token;
 
-    fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
+    axios.post('http://localhost:8000/api/login/', { username, password })
+    .then(response => {
+      console.log('Response status:', response.status);
+      if (response.status === 200) {
+    
+        setSuccessMessage('Login successful'); 
+      } else {
+        
+        console.error('Authentication failed. Details:', response.data);
+        setError('Authentication failed. Please check your credentials.');
+      }
     })
-      .then((response) => {
-        if (response.ok) {
-          // Authentication successful
-          // Store the user token and handle the next steps
-        } else {
-          // Authentication failed
-          setError('Authentication failed. Please check your credentials.');
-        }
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-  };
+    .catch(error => {
+      console.error('Error:', error);
+      setError('An error occurred during the login process.');
+    });
+  }
 
   return (
     <div className="login-page">
       <h2>Login</h2>
       {error && <p className="error-message">{error}</p>}
+      {successMessage && <p className="success-message">{successMessage}</p>} {}
       <form>
         <div className="form-group">
-          <label>Email</label>
+          <label>Username</label>
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>

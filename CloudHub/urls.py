@@ -1,5 +1,10 @@
 from django.urls import path
+from django.views.decorators.csrf import csrf_exempt
+
 from CloudHub.views import (
+    login,
+    register,
+    user_login,
     UserRegistrationView,
     UserLoginView,
     UserLogoutView,
@@ -14,6 +19,8 @@ from CloudHub.views import (
 )
 
 urlpatterns = [
+    path('api/login/', csrf_exempt(user_login), name='login'),
+    path('register/', register, name='register'),
     path('frontend/', my_template_view, name='my-template'),
     path('user-registration/', UserRegistrationView.as_view(), name='user-registration'),
     path('user-login/', UserLoginView.as_view(), name='user-login'),

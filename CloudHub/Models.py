@@ -1,4 +1,4 @@
-from django.db import models
+
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 
@@ -7,9 +7,6 @@ from django.db import models
 class User(models.Model):
     username = models.CharField(max_length=50)
     password = models.CharField(max_length=100)
-
-
-
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, username, password=None, **extra_fields):
