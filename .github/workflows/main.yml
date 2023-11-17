@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - Main
+      - main
 
 jobs:
   build:
@@ -19,7 +19,7 @@ jobs:
 
     - name: Install dependencies and build frontend
       run: |
-        cd frontend
+        cd root/frontend  # Adjust the path to the frontend directory
         npm install
         npm run build
 
@@ -30,7 +30,7 @@ jobs:
 
     - name: Install dependencies for backend
       run: |
-        cd backend
+        cd root/backend  # Adjust the path to the backend directory
         pip install -r requirements.txt
 
   deploy:
@@ -40,4 +40,4 @@ jobs:
     - name: Deploy to Azure
       uses: azure/webapps-deploy@v2
       with:
-        app-name: CloudHub
+        app-name: CloudHub  # Make sure this is correct based on your Azure configuration
