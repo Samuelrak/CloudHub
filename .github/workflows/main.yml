@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  build_backend:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,12 +17,22 @@ jobs:
         working-directory: Back-end
         run: docker build -t backend .
 
+  build_frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Build Frontend Docker Image
         working-directory: Front-end
         run: docker build -t frontend .
 
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build_backend, build_frontend]
+    steps:
       - name: Deploy to Azure
         uses: azure/webapps-deploy@v2
         with:
-          app-name: CloudHubProject
-
+          app-name: CloudHub
