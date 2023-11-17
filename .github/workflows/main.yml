@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Build Backend Docker Image
-        working-directory: backend
+        working-directory: Back-end
         run: docker build -t backend .
 
   build_frontend:
@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Build Frontend Docker Image
-        working-directory: frontend
+        working-directory: Front-end
         run: docker build -t frontend .
 
   deploy:
