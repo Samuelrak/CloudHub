@@ -19,7 +19,7 @@ jobs:
         run: |
           docker build -t backend ./Back-end
           docker build -t frontend ./Front-end
-          pip install -r requirements.txt
+          pip install -r Back-end/requirements.txt
 
       - name: Azure Login
         uses: azure/login@v1
