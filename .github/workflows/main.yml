@@ -43,5 +43,3 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          platform: python
-          platform-version: 3.12
