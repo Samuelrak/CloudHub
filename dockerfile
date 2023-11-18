@@ -5,11 +5,17 @@ WORKDIR /app
 COPY . .
 
 RUN pip install --upgrade pip
+
 RUN pip install -r Back-end/requirements.txt
 
 WORKDIR /app/Front-end
 
+COPY Front-end/package*.json ./
+
 RUN npm install
+
+COPY Front-end/ .
+
 RUN npm run build
 
 WORKDIR /app/Back-end
