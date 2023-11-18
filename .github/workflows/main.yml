@@ -4,7 +4,10 @@ on:
   push:
     branches:
       - Main
-
+env:
+  AZURE_WEBAPP_NAME: CloudHubProject
+  AZURE_WEBAPP_PACKAGE_PATH: "./publish"
+  
 jobs:
   build_backend:
     runs-on: ubuntu-latest
@@ -35,4 +38,6 @@ jobs:
       - name: Deploy to Azure
         uses: azure/webapps-deploy@v2
         with:
-          app-name: CloudHub
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          package: "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
