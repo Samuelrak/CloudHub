@@ -3,7 +3,7 @@ ame: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
+      - Main
 
 env:
   AZURE_WEBAPP_NAME: CloudHubProject
