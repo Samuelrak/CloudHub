@@ -5,7 +5,7 @@ WORKDIR /app
 COPY . .
 
 RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install -r Back-end/requirements.txt
 
 WORKDIR /app/Front-end
 
@@ -16,4 +16,4 @@ WORKDIR /app/Back-end
 
 EXPOSE 8000
 
-CMD ["python", "server.py"]
+CMD ["python", "Back-end/server.py"]
