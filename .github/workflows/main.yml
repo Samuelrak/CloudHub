@@ -21,6 +21,7 @@ jobs:
           docker build -t frontend ./Front-end
           pip install --upgrade pip
           pip install -r Back-end/requirements.txt
+          pip install mysql-connector
 
       - name: Azure Login
         uses: azure/login@v1
