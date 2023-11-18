@@ -4,21 +4,13 @@ on:
   push:
     branches:
       - Main
+
 env:
   AZURE_WEBAPP_NAME: CloudHubProject
 
 jobs:
-  login:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
   build_backend:
     runs-on: ubuntu-latest
-    needs: login
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -29,7 +21,7 @@ jobs:
 
   build_frontend:
     runs-on: ubuntu-latest
-    needs: login
+    needs: build_backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -42,6 +34,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build_backend, build_frontend]
     steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Deploy to Azure
         uses: azure/webapps-deploy@v2
         with:
