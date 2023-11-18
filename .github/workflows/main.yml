@@ -1,9 +1,9 @@
-name: CI/CD Pipeline
+ame: CI/CD Pipeline
 
 on:
   push:
     branches:
-      - Main
+      - main
 
 env:
   AZURE_WEBAPP_NAME: CloudHubProject
@@ -15,12 +15,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Build and Push Docker Images
+      - name: Build and Push Docker Image
         run: |
-          docker build -t backend ./Back-end
-          docker build -t frontend ./Front-end
-          pip install --upgrade pip
-          pip install -r Back-end/requirements.txt
+          docker build -t cloudhub .
 
       - name: Azure Login
         uses: azure/login@v1
