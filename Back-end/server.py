@@ -154,6 +154,42 @@ def get_file_by_id(file_id):
     else:
         return jsonify({'success': False, 'error': 'File not found'}), 404
 
+@app.route('/api/comments/<int:file_id>', methods=['GET'])
+def get_comments_by_file_id(file_id):
+    cursor.execute("SELECT * FROM comments WHERE file_id = %s", (file_id,))
+    comments = cursor.fetchall()
+
+    comment_list = [
+        {
+            'comment_id': comment['comment_id'],
+            'user_id': comment['user_id'],
+            'username': comment['username'],
+            'comment_text': comment['comment_text'],
+            'created_at': comment['created_at'].isoformat(),
+        } for comment in comments
+    ]
+
+    return jsonify({'success': True, 'comments': comment_list})
+
+@app.route('/api/comments/<int:file_id>', methods=['POST'])
+def post_comment(file_id):
+    data = request.get_json()
+
+    # Fetch the 'user_id' and 'username' from the decoded JWT token
+    token = request.headers.get('Authorization', '').replace('Bearer ', '')
+    decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+    user_id = decoded_token.get('user_id')
+    username = decoded_token.get('username', '')
+
+    comment_text = data.get('commentText')
+
+    cursor.execute(
+        "INSERT INTO comments (file_id, user_id, username, comment_text) VALUES (%s, %s, %s, %s)",
+        (file_id, user_id, username, comment_text)
+    )
+    db.commit()
+
+    return jsonify({'success': True, 'message': 'Comment added successfully'})
 
 if __name__ == '__main__':
     app.run(debug=True)
