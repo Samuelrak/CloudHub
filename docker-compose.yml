@@ -13,6 +13,8 @@ services:
       - dist:/app/dist/cloudhub
     ports:
       - "8000:8000"
+    command: npm run start  
+
 
   back-end:
     image: back-end
@@ -21,6 +23,7 @@ services:
       - connection
     depends_on:
       - front-end
+    command: python server.py runserver 0.0.0.0:8000   
 
   nginx:
     image: nginx
@@ -34,6 +37,7 @@ services:
     depends_on:
       - front-end
       - back-end
+    command: nginx -g 'daemon off;'
 
 networks:
   connection:
