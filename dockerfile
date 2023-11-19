@@ -15,7 +15,7 @@ WORKDIR /app
 COPY . .
 
 RUN pip install -r Back-end/requirements.txt
-pip install mysql-connector
+RUN pip install mysql-connector
 
 COPY --from=build /app/Front-end/build /app/Back-end/Front-end/build
 
