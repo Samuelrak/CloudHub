@@ -11,6 +11,8 @@ services:
       - connection
     volumes:
       - dist:/app/dist/cloudhub
+    ports:
+      - "8000:8000"
 
   back-end:
     image: back-end
