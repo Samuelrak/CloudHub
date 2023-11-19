@@ -15,10 +15,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Build and Push Docker Image
+      - name: Build backend
         run: |
-          docker build -t cloudhub .
+          docker build -t back-end ./Back-end
 
+      - name: Build frontend
+        run: |
+          docker build -t front-end ./Front-end
+
+      - name: Build nginx
+        run: |
+          docker build -t nginx .
+          
       - name: Azure Login
         uses: azure/login@v1
         with:
@@ -28,4 +36,6 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          startup-command: 'docker run -p 8000:8000 cloudhub'
+          multi-container-config-type: 'compose'
+          multi-container-config-file: 'docker-compose.yml'
+

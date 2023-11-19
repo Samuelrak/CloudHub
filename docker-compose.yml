@@ -1,0 +1,38 @@
+version: "3.8"
+
+volumes:
+  dist:
+
+services:
+  front-end:
+    image: front-end
+    restart: always
+    networks:
+      - connection
+    volumes:
+      - dist:/app/dist/cloudhub
+
+  back-end:
+    image: back-end
+    restart: always
+    networks:
+      - connection
+    depends_on:
+      - front-end
+
+  nginx:
+    image: nginx
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - dist:/var/www/web
+    networks:
+      - connection
+    depends_on:
+      - front-end
+      - back-end
+
+networks:
+  connection:
+    external: true
