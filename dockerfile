@@ -14,8 +14,8 @@ WORKDIR /app
 
 COPY . .
 
-RUN pip install --upgrade pip
 RUN pip install -r Back-end/requirements.txt
+pip install mysql-connector
 
 COPY --from=build /app/Front-end/build /app/Back-end/Front-end/build
 
