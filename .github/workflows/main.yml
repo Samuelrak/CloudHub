@@ -29,4 +29,5 @@ jobs:
     steps:
           - name: deploying
             run: |
-              sudo docker-compose up
+              docker-compose pull && \
+              docker-compose up -d"
