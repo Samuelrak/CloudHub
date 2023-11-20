@@ -30,4 +30,4 @@ jobs:
           - name: deploying
             run: |
               cd /home/ubuntu/project
-              docker-compose up -d
+              sudo docker-compose up -d
