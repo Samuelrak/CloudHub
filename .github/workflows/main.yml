@@ -5,9 +5,6 @@ on:
     branches:
       - Main
 
-env:
-  AZURE_WEBAPP_NAME: CloudHubProject
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,10 +25,8 @@ jobs:
           docker build -t nginx .
           
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - name: Deploy to Virtual Machine
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        run: |
-          ssh -o StrictHostKeyChecking=no -i <(echo "$SSH_PRIVATE_KEY") samuel.rak@kosickaakademia.sk "cd /Home/ubuntu && git pull && docker-compose up -d"
+          - name: deploying
+            run: |
+              docker build -t nginx .
