@@ -29,7 +29,5 @@ jobs:
     steps:
           - name: deploying
             run: |
-              cd /
-              ls -a
-              docker-compose pull && \
+              cd /home/ubuntu/project
               docker-compose up -d
