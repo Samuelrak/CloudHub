@@ -29,4 +29,4 @@ jobs:
     steps:
           - name: deploying
             run: |
-              docker build -t nginx .
+              sudo docker-compose up
