@@ -14,15 +14,27 @@ jobs:
 
       - name: Build backend
         run: |
-          docker build -t back-end ./Back-end
+          docker build -t back-end:latest ./Back-end
 
       - name: Build frontend
         run: |
-          docker build -t front-end ./Front-end
+          docker build -t front-end:latest ./Front-end
 
       - name: Build nginx
         run: |
-          docker build -t nginx .
+          docker build -t nginx:latest .
+
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Tag and push Docker images
+        run: |
+          docker tag back-end:latest ${{ secrets.DOCKER_USERNAME }}/back-end:latest
+          docker tag front-end:latest ${{ secrets.DOCKER_USERNAME }}/front-end:latest
+          docker tag nginx:latest ${{ secrets.DOCKER_USERNAME }}/nginx:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/back-end:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/front-end:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/nginx:latest
           
   deploy:
     runs-on: self-hosted
