@@ -42,5 +42,6 @@ jobs:
     steps:
           - name: deploying
             run: |
+              sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
               cd /home/ubuntu/project
               sudo docker-compose up -d
