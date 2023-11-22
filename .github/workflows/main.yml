@@ -43,5 +43,8 @@ jobs:
           - name: deploying
             run: |
               sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+              sudo docker pull ${{ secrets.DOCKER_USERNAME }}/back-end:latest
+              sudo docker pull ${{ secrets.DOCKER_USERNAME }}/front-end:latest
+              sudo docker pull ${{ secrets.DOCKER_USERNAME }}/nginx:latest
               cd /home/ubuntu/project
               sudo docker-compose up -d
