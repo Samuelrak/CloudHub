@@ -11,10 +11,10 @@ app = Flask(__name__)
 CORS(app)
 
 db_config = {
-    'host': 'localhost',
+    'host': 'mysql', 
     'user': 'root',
     'password': '',
-    'database': '6',
+    'database': 'CloudHub',
 }
 
 db = mysql.connector.connect(**db_config)
