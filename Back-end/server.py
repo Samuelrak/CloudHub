@@ -11,7 +11,7 @@ app = Flask(__name__)
 CORS(app)
 
 db_config = {
-    'host': 'mysql', 
+    'host': 'localhost', 
     'user': 'root',
     'password': '',
     'database': 'CloudHub',
