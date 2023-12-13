@@ -12,6 +12,7 @@ const FileUpload = () => {
     if (selectedFile) {
       const formData = new FormData();
       formData.append('file', selectedFile);
+      formData.append('filename', selectedFile.name); 
 
 
       const username = localStorage.getItem('username');

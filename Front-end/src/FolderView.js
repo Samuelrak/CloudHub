@@ -9,7 +9,7 @@ function FolderView({ folder }) {
     const fetchFolderContents = async () => {
       try {
         console.log('Folder value:', folder); 
-        const response = await axios.get(`http://localhost:5000/api/files/`);
+        const response = await axios.get(`http://localhost:5000/api/files/${folder}`);
         setFolderContents(response.data.files);
         setLoading(false);
       } catch (error) {
@@ -31,13 +31,13 @@ function FolderView({ folder }) {
           {folderContents.map(item => (
             <li key={item.id}>
               {item.is_folder ? (
-                // Render folder information
+                
                 <div>
                   <span>{item.filename} (Folder)</span>
-                  <button>View Folder</button>  {/* Add functionality to view folder */}
+                  <button>View Folder</button>  { }
                 </div>
               ) : (
-                // Render file information
+          
                 <span>{item.filename} (File)</span>
               )}
             </li>

@@ -1,20 +1,23 @@
+import os
+from datetime import datetime
 from io import BytesIO
 
 import mysql.connector
-from flask import Flask, request, jsonify, make_response, send_file
+from flask import Flask, request, jsonify, make_response, send_file, redirect, url_for, current_app
 from flask_cors import CORS
 import jwt
 import uuid
 
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 CORS(app)
 
 db_config = {
-    'host': 'localhost', 
+    'host': 'localhost',
     'user': 'root',
     'password': '',
-    'database': 'CloudHub',
+    'database': '7',
 }
 
 db = mysql.connector.connect(**db_config)
@@ -22,11 +25,10 @@ db = mysql.connector.connect(**db_config)
 cursor = db.cursor(dictionary=True)
 
 SECRET_KEY = 'your_secret_key'
+app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'petouploads')
 
-UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', "pptx", "rar", "zip"}
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -76,66 +78,214 @@ def get_user_info():
             return jsonify({'error': 'Token has expired'}), 401
         except jwt.InvalidTokenError:
             return jsonify({'error': 'Invalid token'}), 401
-@app.route('/api/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return jsonify({'success': False, 'error': 'No file part'}), 400
 
-    file = request.files['file']
 
-    if file.filename == '':
-        return jsonify({'success': False, 'error': 'No selected file'}), 400
-
-    if file and allowed_file(file.filename):
-        file_data = file.read()
-
-        user_id = request.form.get('user_id')
-        username = request.form.get('username')
-        file_id = request.form.get('file_id')
-
-        file_size = len(file_data)
-
-        cursor.execute(
-            "INSERT INTO files (user_id, username, filename, file_data, file_size) VALUES (%s, %s, %s, %s, %s)",
-            (user_id, username, file.filename, file_data, file_size)
-        )
-        db.commit()
-
-        return jsonify({'success': True, 'message': 'File uploaded to database successfully'})
-
-    return jsonify({'success': False, 'error': 'Invalid file type'}), 400
 
 
 @app.route('/api/files', methods=['GET'])
-def get_files():
-    cursor.execute("SELECT filename, user_id, username, created_at, file_size, file_id FROM files")
-    files = cursor.fetchall()
+def get_files_and_folders():
+    folder_id = request.args.get('folder_id')
 
-    file_list = [
-        {
-            'filename': file['filename'],
-            'file_id' : file['file_id'],
-            'user_id': file['user_id'],
-            'username': file['username'],
-            'created_at': file['created_at'].isoformat(),
-            'file_size': file['file_size']
-        } for file in files
-    ]
+    if folder_id:
 
-    return jsonify({'success': True, 'files': file_list})
+        folders, files = get_files_and_folders_by_folder_id(folder_id)
+    else:
 
-@app.route('/api/download/<filename>', methods=['GET'])
-def download_file(filename):
-    cursor.execute("SELECT file_data FROM files WHERE filename = %s", (filename,))
-    file_data = cursor.fetchone()
+        folders, files = get_top_level_files_and_folders()
 
-    if file_data:
-        file_data = file_data['file_data']
-        file_object = BytesIO(file_data)
-        return send_file(file_object, as_attachment=True, download_name=filename)
 
-    return jsonify({'success': False, 'error': 'File not found'}), 404
+    return jsonify({"success": True, "folders": folders, "files": files})
 
+
+def get_files_and_folders_by_folder_id(folder_id):
+    cursor = db.cursor(dictionary=True)
+
+    try:
+        select_folders_query = """
+            SELECT * FROM folders
+            WHERE parent_folder_id = %s
+        """
+        cursor.execute(select_folders_query, (folder_id,))
+        folders = cursor.fetchall()
+
+        select_files_query = """
+            SELECT * FROM file
+            WHERE folder_id = %s
+        """
+        cursor.execute(select_files_query, (folder_id,))
+        files = cursor.fetchall()
+
+    finally:
+        cursor.close()
+
+    return folders, files
+
+def get_top_level_files_and_folders():
+    cursor = db.cursor(dictionary=True)
+
+    try:
+        select_top_level_folders_query = """
+            SELECT * FROM folders
+            WHERE parent_folder_id IS NULL
+        """
+        cursor.execute(select_top_level_folders_query)
+        folders = cursor.fetchall()
+
+        select_top_level_files_query = """
+            SELECT * FROM file
+            WHERE folder_id IS NULL
+        """
+        cursor.execute(select_top_level_files_query)
+        files = cursor.fetchall()
+
+    finally:
+        cursor.close()
+
+    return folders, files
+
+
+
+
+
+
+@app.route('/api/upload1', methods=['POST'])
+def upload_files_and_folders():
+    if 'files[]' not in request.files:
+        return jsonify({'success': False, 'error': 'No files provided'}), 400
+
+    files = request.files.getlist('files[]')
+    username = request.form.get('username')
+    parent_folder_id = request.form.get('parent_folder_id')
+    parent_folder_name = request.form.get('parentFolderName')
+
+    parent_folder_id = create_folder(username, parent_folder_id=None, parent_folder_name=None)
+
+    child_folder_id = create_folder(username, parent_folder_id=parent_folder_id, parent_folder_name=parent_folder_name)
+
+    if not child_folder_id:
+        return jsonify({"error": "Failed to create child folder"}), 500
+
+    for file in files:
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], username, 'uploads', child_folder_id, filename)
+
+        folder_path = os.path.dirname(file_path)
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+        file.save(file_path)
+
+        create_file(filename, child_folder_id, username, file_path)
+
+    return jsonify({"message": "Files and child folder uploaded successfully"}), 200
+
+def create_folder(username, parent_folder_id=None, parent_folder_name=None):
+    folder_name = request.form.get('folderName')
+
+    if not folder_name:
+        return jsonify({"error": "Folder name not provided"}), 400
+
+    if parent_folder_id:
+        parent_folder_path = get_folder_path(parent_folder_id, username)
+        if not parent_folder_path:
+            return jsonify({"error": "Parent folder not found"}), 404
+
+        folder_path = os.path.join(parent_folder_path, folder_name)
+    else:
+        folder_path = os.path.join(app.config['UPLOAD_FOLDER'], username, 'uploads', folder_name)
+
+    # Check if folder already exists in the file system
+    if os.path.exists(folder_path):
+        return jsonify({"error": "Folder already exists"}), 400
+
+    cursor = db.cursor(dictionary=True)
+
+    try:
+        select_folder_query = """
+            SELECT * FROM folders
+            WHERE folder_name = %s AND username = %s AND parent_folder_id = %s
+        """
+        cursor.execute(select_folder_query, (folder_name, username, parent_folder_id))
+        result = cursor.fetchone()
+        if result:
+            return jsonify({"error": "Folder already exists in the database"}), 400
+
+        insert_folder_query = """
+            INSERT INTO folders (folder_id, username, folder_name, folder_path, parent_folder_id, parent_folder_name)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        folder_id = str(uuid.uuid4())
+
+        parent_folder_id = parent_folder_id if parent_folder_id else None
+        parent_folder_name = parent_folder_name if parent_folder_name else None
+
+        cursor.execute(insert_folder_query, (folder_id, username, folder_name, folder_path, parent_folder_id, parent_folder_name))
+        db.commit()
+    finally:
+        cursor.close()
+
+    return folder_id
+def get_folder_path(folder_id, username):
+    cursor = db.cursor(dictionary=True)
+    try:
+        select_folder_query = """
+            SELECT folder_path FROM folders
+            WHERE folder_id = %s AND username = %s
+        """
+        cursor.execute(select_folder_query, (folder_id, username))
+        result = cursor.fetchone()
+        return result['folder_path'] if result else None
+    finally:
+        cursor.close()
+
+def create_file(file_name, folder_id, username, file_path):
+    cursor = db.cursor()
+    file_size = os.path.getsize(file_path)
+    file_id = str(uuid.uuid4())
+
+    cursor.execute("""
+        INSERT INTO file (file_id, file_name, folder_id, file_size, username, file_path)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (file_id, file_name, folder_id, file_size, username, file_path))
+
+    db.commit()
+    cursor.close()
+
+# @app.route('/api/download/<filename>', methods=['GET'])
+# def download_file(filename):
+#     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+#
+#     if os.path.exists(file_path):
+#         return send_file(file_path, as_attachment=True)
+#     else:
+#         return jsonify({'success': False, 'error': 'File not found'}), 404
+
+
+
+
+
+@app.route('/api/files/<path:folder>', methods=['GET'])
+def get_folder_contents(folder):
+    BASE_FOLDER = 'petouploads'
+    folder_path = os.path.join(BASE_FOLDER, folder)
+
+    if not os.path.exists(folder_path):
+        return jsonify({'success': False, 'error': 'Folder not found'}), 404
+
+    folder_contents = []
+
+    for item in os.listdir(folder_path):
+        item_path = os.path.join(folder_path, item)
+        is_folder = os.path.isdir(item_path)
+        size = os.path.getsize(item_path) if not is_folder else 0
+
+        folder_contents.append({
+            'filename': item,
+            'is_folder': is_folder,
+            'size': size
+        })
+
+    return jsonify({'success': True, 'files': folder_contents})
 @app.route('/api/files/<int:file_id>', methods=['GET'])
 def get_file_by_id(file_id):
     cursor.execute("SELECT * FROM files WHERE file_id = %s", (file_id,))

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import jpgIcon from './jpg-icon.png';
-import FileDetail from './FileDetail';
 
 function formatBytes(bytes) {
   if (bytes === 0) return '0.00 Bytes';
@@ -12,33 +11,26 @@ function formatBytes(bytes) {
   return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
 }
 
-function FileViewButton() {
-  const [files, setFiles] = useState([]);
-  const [selectedFilename, setSelectedFilename] = useState(null);
+function FileViewButton({ match }) {
+  const [data, setData] = useState([]);
   const [isComponentVisible, setComponentVisibility] = useState(true);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/files')
+    const folderId = match.params.folderId;
+    const url = folderId ? `http://localhost:5000/api/files?folder_id=${folderId}` : 'http://localhost:5000/api/files';
+
+    axios.get(url)
       .then(response => {
-        setFiles(response.data.files);
+        setData(response.data.data);
       })
       .catch(error => {
-        console.error('Error fetching files:', error);
+        console.error('Error fetching files and folders:', error);
       });
-  }, []);
-
-  const handleFileClick = (filename) => {
-    setSelectedFilename(filename);
-  };
+  }, [match.params.folderId]);
 
   if (!isComponentVisible) {
     return null; 
   }
-
-  const handleDownload = (filename) => {
-    const downloadUrl = `http://localhost:5000/api/download/${filename}`;
-    window.open(downloadUrl, '_blank');
-  };
 
   return (
     <div>
@@ -46,41 +38,31 @@ function FileViewButton() {
       <table>
         <thead>
           <tr>
-            <th>Filename</th>
-            <th>User ID</th>
-            <th>Username</th>
-            <th>Created At</th>
-            <th>File Size</th>
-            <th>Action</th>
+            <th>Name</th>
+            {/* Add more headers as needed */}
           </tr>
         </thead>
         <tbody>
-          {files.map(file => (
+          {data.folders.map(folder => (
+            <tr key={folder.folder_id}>
+              <td>
+                <Link to={`/files/${folder.folder_id}`}>
+                  {folder.folder_name}
+                </Link>
+                <FileViewButton match={{ params: { folderId: folder.folder_id } }} />
+              </td>
+            </tr>
+          ))}
+          {data.files.map(file => (
             <tr key={file.file_id}>
               <td>
                 {file.filename.endsWith('.jpg') ? (
                   <img src={jpgIcon} alt="JPG Icon" />
-                ) : file.filename.endsWith('.png') ? (
-                  <img src={jpgIcon} alt="PNG Icon" />
                 ) : (
                   <span>{file.filename}</span>
                 )}
               </td>
-              <td>
-                <Link to={`/file-detail/${file.file_id}`}>
-                  {file.username}
-                </Link>
-              </td>
-              <td>{file.filename}</td>
-              <td>{file.user_id}</td>
-              <td>{file.username}</td>
-              <td>{file.created_at}</td>
-              <td>{formatBytes(file.file_size)}</td>
-              <td>
-                <button onClick={() => handleDownload(file.filename)}>
-                  Download
-                </button>
-              </td>
+              {/* Add more columns as needed */}
             </tr>
           ))}
         </tbody>
