@@ -15,15 +15,17 @@ function Login({ onLogin }) {
 
     try {
       const response = await axios.post('http://localhost:5000/api/login', data);
-
+    
+      console.log('Server Response:', response.data);
+    
       if (response.data.success) {
         const { token, session_id, username, user_id } = response.data;
         localStorage.setItem('token', token);
         localStorage.setItem('session_id', session_id);
         localStorage.setItem('username', username);
-        localStorage.setItem('user_id', user_id); 
-        onLogin(); 
-        navigate('/'); 
+        localStorage.setItem('user_id', user_id);
+        onLogin();
+        navigate('/');
       } else {
         console.error('Authentication failed. Details:', response.data);
         setError('Authentication failed. Please check your credentials.');

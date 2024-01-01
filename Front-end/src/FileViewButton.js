@@ -39,7 +39,11 @@ function FileViewButton({ match }) {
         <thead>
           <tr>
             <th>Name</th>
+<<<<<<< HEAD
+            {              }
+=======
             {/* Add more headers as needed */}
+>>>>>>> 3546cf8f1c90c75ffa6d0ee4f8baacbf45e4d0b6
           </tr>
         </thead>
         <tbody>
@@ -62,7 +66,11 @@ function FileViewButton({ match }) {
                   <span>{file.filename}</span>
                 )}
               </td>
+<<<<<<< HEAD
+              {              }
+=======
               {/* Add more columns as needed */}
+>>>>>>> 3546cf8f1c90c75ffa6d0ee4f8baacbf45e4d0b6
             </tr>
           ))}
         </tbody>

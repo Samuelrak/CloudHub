@@ -1,3 +1,52 @@
+<<<<<<< HEAD
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+function Comment({ file_id }) {
+  const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState('');
+
+  const fetchComments = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/comments/${file_id}`);
+      setComments(response.data.comments);
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    }
+  };
+
+  const postComment = async () => {
+    try {
+      await axios.post(`http://localhost:5000/api/comments/${file_id}`, { commentText });
+      setCommentText('');
+      fetchComments();
+    } catch (error) {
+      console.error('Error posting comment:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchComments();
+  }, [file_id]);
+
+  return (
+    <div>
+      <h2>Comments</h2>
+      <ul>
+        {comments.map((comment) => (
+          <li key={comment.comment_id}>
+            <strong>{comment.username}</strong>: {comment.comment_text}
+          </li>
+        ))}
+      </ul>
+      <div>
+        <textarea
+          placeholder="Add a comment..."
+          value={commentText}
+          onChange={(e) => setCommentText(e.target.value)}
+        />
+        <button onClick={postComment}>Post Comment</button>
+=======
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -46,9 +95,15 @@ function Comment({ file_id, user_id, username }) {
             <small>{comment.created_at}</small>
           </div>
         ))}
+>>>>>>> 3546cf8f1c90c75ffa6d0ee4f8baacbf45e4d0b6
       </div>
     </div>
   );
 }
 
+<<<<<<< HEAD
 export default Comment;
+
+=======
+export default Comment;
+>>>>>>> 3546cf8f1c90c75ffa6d0ee4f8baacbf45e4d0b6

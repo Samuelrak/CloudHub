@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 FROM python:3.12
 
 WORKDIR /app
@@ -10,3 +12,4 @@ RUN pip install mysql-connector-python
 EXPOSE 8000
 
 CMD ["python", "server.py"]
+>>>>>>> 3546cf8f1c90c75ffa6d0ee4f8baacbf45e4d0b6

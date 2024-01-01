@@ -1,0 +1,32 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #eb3535;
+}
+
+.th {
+  background-color: #f2f2f2;
+  color: black;
+  font-weight: normal;
+  text-align: left;
+  padding: 10px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.td {
+  padding: 10px 15px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.trHover:hover {
+  background-color: #e8e8e8;
+}
+
+.icon {
+  margin-right: 5px;
+}
+
+.class{
+    color: #eb3535;
+}

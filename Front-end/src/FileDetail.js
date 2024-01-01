@@ -31,6 +31,14 @@ function FolderView({ folder }) {
           {folderContents.map(item => (
             <li key={item.id}>
               {item.is_folder ? (
+<<<<<<< HEAD
+       
+                <div>
+                  <span>{item.filename} (Folder)</span>
+                  <button>View Folder</button>
+                </div>
+              ) : (
+=======
                 // Render folder information
                 <div>
                   <span>{item.filename} (Folder)</span>
@@ -38,6 +46,7 @@ function FolderView({ folder }) {
                 </div>
               ) : (
                 // Render file information
+>>>>>>> 3546cf8f1c90c75ffa6d0ee4f8baacbf45e4d0b6
                 <span>{item.filename} (File)</span>
               )}
             </li>
