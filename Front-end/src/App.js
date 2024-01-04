@@ -12,6 +12,7 @@ import Pricing from './pricing';
 import CreditCart from './CreditCart';
 import { loadStripe } from '@stripe/stripe-js'; 
 import { Elements } from '@stripe/react-stripe-js'; 
+import Register from './Register';
 
 const stripePromise = loadStripe('pk_test_51OTpbSF4Z1rGwqoeFuAs5yjY6ldMQuo6pgoNv6zw7hKKD5HL0CMXCc3lymf5QhaYE2179xTwFtMSvKLX8VIJhpyn00mhijCHAK');
 
@@ -28,9 +29,10 @@ function App() {
               path="/login"
               element={<Login onLogin={() => <Navigate to="/" />} />}
             />
+            <Route path="/register" element={<Register />} />
             <Route path="/file-detail/:file_id" element={<FileDetail />} />
             <Route path="/user/:username" element={<UserProfile />} />
-            <Route path="/Creditcart/:price" element={<Elements stripe={stripePromise}><CreditCart /></Elements>} />
+            <Route path="/Creditcart/:tier" element={<Elements stripe={stripePromise}><CreditCart /></Elements>} />
           </Routes>
         </Router>
       </UserProvider>

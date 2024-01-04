@@ -12,12 +12,8 @@ function Home() {
       <Header /> 
 <FileUpload />
 <FolderUpload />
-<<<<<<< HEAD
 {/* <FileViewButton /> */}
 <FileExplorer />
-=======
-<FileViewButton />
->>>>>>> 3546cf8f1c90c75ffa6d0ee4f8baacbf45e4d0b6
     </div>
   );
 }

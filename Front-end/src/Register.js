@@ -1,49 +1,38 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from './AuthContext';
 
-function Login({ onLogin }) {
+function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { setIsLoggedIn } = useAuth();
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
     const data = { username, password };
 
     try {
-      const response = await axios.post('http://localhost:5000/api/login', data);
-
-      console.log('Server Response:', response.data);
+      const response = await axios.post('http://localhost:5000/api/register', data);
 
       if (response.data.success) {
-        const { token, session_id, username, user_id } = response.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('session_id', session_id);
-        localStorage.setItem('username', username);
-        localStorage.setItem('user_id', user_id);
-        setIsLoggedIn(true);
-        onLogin();
-        navigate('/');
+        navigate('/login');
       } else {
-        console.error('Authentication failed. Details:', response.data);
-        setError('Authentication failed. Please check your credentials.');
+        console.error('Registration failed. Details:', response.data);
+        setError('Registration failed. Please try again.');
       }
     } catch (error) {
       console.error('Error:', error);
-      setError('An error occurred during the login process.');
+      setError('An error occurred during the registration process.');
     }
   };
 
   return (
     <div>
-      <h2>Login</h2>
+      <h2>Register</h2>
       {error && <p className="error-message">{error}</p>}
-      <form onSubmit={handleLogin}>
+      <form onSubmit={handleRegister}>
         <div className="form-group">
           <label>Username</label>
           <input
@@ -62,10 +51,10 @@ function Login({ onLogin }) {
             required
           />
         </div>
-        <button type="submit">Login</button>
+        <button type="submit">Register</button>
       </form>
     </div>
   );
 }
 
-export default Login;
+export default Register;

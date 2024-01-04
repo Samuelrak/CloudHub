@@ -30,3 +30,15 @@
 .class{
     color: #eb3535;
 }
+.storage-bar {
+  height: 20px;
+  background-color: #ccc; /* Set a background color for the entire storage bar */
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.storage-used {
+  height: 100%;
+
+  background-color: #ffdf13;
+}

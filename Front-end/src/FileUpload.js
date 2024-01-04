@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 const FileUpload = () => {
   const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -12,8 +13,7 @@ const FileUpload = () => {
     if (selectedFile) {
       const formData = new FormData();
       formData.append('file', selectedFile);
-      formData.append('filename', selectedFile.name); 
-
+      formData.append('filename', selectedFile.name);
 
       const username = localStorage.getItem('username');
       const token = localStorage.getItem('token');
@@ -34,7 +34,7 @@ const FileUpload = () => {
       })
         .then(response => response.json())
         .then(data => {
-          console.log(data); 
+          console.log(data);
         })
         .catch(error => {
           console.error('Error uploading file:', error);
@@ -44,6 +44,12 @@ const FileUpload = () => {
 
   return (
     <div>
+    <input
+      type="file"
+      ref={fileInputRef}
+      onChange={handleFileChange}
+      style={{ display: 'none' }} 
+    />
       <input type="file" onChange={handleFileChange} />
       <button onClick={handleUpload}>Upload</button>
     </div>

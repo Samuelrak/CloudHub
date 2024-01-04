@@ -17,6 +17,7 @@ const CreditCart = () => {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   const username = localStorage.getItem('username');
+  const token = localStorage.getItem('token');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -40,6 +41,7 @@ const CreditCart = () => {
         setPaymentSuccess(true);
 
         axios.post('http://localhost:5000/api/update-tier', {
+          token: token,
           username: username,
           tier: tier,
         })

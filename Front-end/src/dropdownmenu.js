@@ -4,6 +4,7 @@ import './dropdownmenu.css';
 import axios from 'axios';
 import LoadingIndicator from './LoadingIndicator';
 import { useUser } from './usercontext';
+import { useAuth } from './AuthContext'; 
 
 function DropdownMenu() {
   const [menuVisible, setMenuVisible] = useState(false);
@@ -11,24 +12,29 @@ function DropdownMenu() {
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
   const { user, updateUser } = useUser();
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
       const storedToken = localStorage.getItem('token');
-
+    
       if (storedToken) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-
+    
         try {
           const response = await axios.get('http://localhost:5000/api/user-info');
           updateUser(response.data);
+          setIsLoggedIn(true);
         } catch (error) {
           console.error('Error fetching user info:', error);
+          handleLogout();
         }
+      } else {
+        setIsLoggedIn(false);
       }
-
       setLoading(false);
     };
+  
 
     fetchData();
 
@@ -72,6 +78,10 @@ function DropdownMenu() {
     navigate('/login');
   };
 
+  const handleRegisterClick = () => {
+    navigate('/register');
+  };
+  
   const handleToggleBarClick = () => {
     setMenuVisible(!menuVisible);
   };
@@ -79,12 +89,17 @@ function DropdownMenu() {
   return (
     <div className="dropdown-container">
       <div className="toggle-bar" onClick={handleToggleBarClick}>
-        {user ? (
+        {isLoggedIn ? (
           <span>{user.username ? `Hello, ${user.username}` : 'Toggle Dropdown ▼'}</span>
         ) : (
-          <button className="login-button" onClick={handleLoginClick}>
-            Login
-          </button>
+          <>
+            <button className="login-button" onClick={handleLoginClick}>
+              Login
+            </button>
+            <button className="register-button" onClick={handleRegisterClick}>
+              Register
+            </button>
+          </>
         )}
       </div>
   

@@ -49,7 +49,6 @@ function FolderView({ folder }) {
 }
 
 export default FolderView;
-<<<<<<< HEAD
 
 
 
@@ -84,5 +83,3 @@ export default FolderView;
 
 
 
-=======
->>>>>>> 3546cf8f1c90c75ffa6d0ee4f8baacbf45e4d0b6
