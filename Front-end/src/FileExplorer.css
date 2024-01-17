@@ -1,7 +1,8 @@
 .table {
-  width: 100%;
+  width: 1300px;
   border-collapse: collapse;
-  color: #eb3535;
+  color: #6935eb;
+  border-style: solid 3px;
 }
 
 .th {
@@ -32,7 +33,7 @@
 }
 .storage-bar {
   height: 20px;
-  background-color: #ccc; /* Set a background color for the entire storage bar */
+  background-color: #ccc; 
   border-radius: 4px;
   overflow: hidden;
 }
@@ -40,5 +41,63 @@
 .storage-used {
   height: 100%;
 
-  background-color: #ffdf13;
+  background-color: #2400a8;
+}
+.storage{
+  margin-top: 50px;
+  margin-left: 50px;
+}
+
+.private-button {
+  float: right;
+
+}
+
+.public-button {
+  float: right;
+
+}
+
+.remove-button{
+  float: right;
+}
+
+.upload-info1 {
+  border: 1px dashed #ccc; /* Change border style to dashed */
+  padding: 5px; /* Reduce padding */
+  margin: 10px; /* Reduce margin */
+}
+
+.upload-info {
+  width: 1300px; /* Adjust the width as needed */
+  padding: 10px;
+}
+
+.storage-bar {
+  height: 20px; 
+  width: 1100px;/* Reduce height */
+  background-color: #b3adad;
+  border-style: solid;
+  border-radius: 8px;
+  overflow: hidden;
+  position: absolute;
+  right: 240px;
+}
+
+.used{
+  position: absolute;
+  margin-left: 30px;
+  top: 400px;
+}
+
+.total{
+  position: absolute;
+  margin-left: 1400px;
+  top: 400px;
+}
+
+.count-storage2{
+  text-align: center;
+  display: flex;
+  border-style: solid 3px;
 }

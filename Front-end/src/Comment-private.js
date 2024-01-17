@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Comment.css';
 
-function Comment({ file_id }) {
+function CommentPrivate({ file_id }) {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -16,7 +16,7 @@ function Comment({ file_id }) {
         Authorization: `Bearer ${token}`
       };
       
-      const response = await axios.get(`http://localhost:5000/api/comments/${file_id}`, { headers });
+      const response = await axios.get(`http://localhost:5000/api/comments-private/${file_id}`, { headers });
       setComments(response.data.comments);
     } catch (error) {
       console.error('Error fetching comments:', error);
@@ -43,9 +43,11 @@ function Comment({ file_id }) {
     fetchComments();
   }, [file_id]);
 
+
   const indexOfLastComment = currentPage * commentsPerPage;
   const indexOfFirstComment = indexOfLastComment - commentsPerPage;
   const currentComments = comments.slice(indexOfFirstComment, indexOfLastComment);
+
 
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -92,4 +94,4 @@ function Comment({ file_id }) {
   );
 }
 
-export default Comment;
+export default CommentPrivate;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Header from './header';
 import './about.css'; 
 import FileUpload from './FileUpload';
@@ -7,13 +7,37 @@ import FileViewButton from './FileViewButton';
 import FileExplorer from './FileExplorer';
 
 function Home() {
+
+
+
+  // const handleDescriptionChange = (value) => {
+  //   setDescription(value);
+  // };
+
+  // const handlePublishChange = (value) => {
+  //   setPublish(value);
+  // };
+
+  
+
   return (
     <div>
       <Header /> 
-<FileUpload />
-<FolderUpload />
-{/* <FileViewButton /> */}
-<FileExplorer />
+      
+
+
+<FileExplorer
+  // isMaxStorageReached={isMaxStorageReached}
+  // uploadSuccess={uploadSuccess}
+  // virusDetected={virusDetected}
+  // setDescription={handleDescriptionChange}
+  // setPublish={handlePublishChange}
+  // description={description} 
+  // publish={publish} 
+  // updateFileExplorer={updateFileExplorer}
+  // setCurrentFolderId1={setCurrentFolderId1} 
+
+/>
     </div>
   );
 }

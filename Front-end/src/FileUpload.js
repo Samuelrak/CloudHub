@@ -1,16 +1,77 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 
-const FileUpload = () => {
+const FileUpload = ({ setIsMaxStorageReached, setUploadSuccess, setVirusDetected, description, publish, updateFileExplorer, currentFolderId }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
+  const [userTier, setUserTier] = useState('');
+  const [userStorageLimit, setUserStorageLimit] = useState(0);
+  const [usedStorage, setUsedStorage] = useState(0);
+  const [uploading, setUploading] = useState(false);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setSelectedFile(file);
+  useEffect(() => {
+    fetchUserStorageInfo();
+  }, []);
+
+  const fetchUserStorageInfo = () => {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      console.error('Token not found in localStorage.');
+      return;
+    }
+
+    fetch('http://localhost:5000/api/user-files-info1', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          console.error('Error fetching user storage info:', data.error);
+          return;
+        }
+
+        const fetchedUserTier = data.tier;
+
+        setUserTier(fetchedUserTier);
+
+        const tierToStorageLimit = {
+          free: 100,
+          basic: 250,
+          pro: 500,
+          premium: 1000,
+        };
+
+        const userStorageLimit = tierToStorageLimit[fetchedUserTier] || 0;
+        setUserStorageLimit(userStorageLimit);
+
+        const usedStorage = data.files.reduce((total, file) => total + file.file_size, 0);
+        setUsedStorage(usedStorage);
+      })
+      .catch((error) => {
+        console.error('Error fetching user storage info:', error);
+      });
   };
 
+const handleFileChange = (event) => {
+  const file = event.target.files[0];
+  setSelectedFile(file);
+  if (file) {
+    handleUpload(); // Automatically start the upload when a file is selected.
+  }
+};
+
   const handleUpload = () => {
-    if (selectedFile) {
+    if (selectedFile && !uploading) {
+      setUploading(true);
+      if (usedStorage + selectedFile.size > userStorageLimit * 1024 * 1024) {
+        console.error(`Uploading this file will exceed your storage limit of ${userStorageLimit} MB.`);
+        setIsMaxStorageReached(true);
+        return;
+      }
+      setIsMaxStorageReached(false);
       const formData = new FormData();
       formData.append('file', selectedFile);
       formData.append('filename', selectedFile.name);
@@ -24,34 +85,65 @@ const FileUpload = () => {
 
       formData.append('username', username);
       formData.append('token', token);
+      formData.append('description', description);
+      formData.append('publish', publish);
+      if (currentFolderId) {
+        formData.append('folderId', currentFolderId);
+      }
 
       fetch('http://localhost:5000/api/upload', {
         method: 'POST',
         body: formData,
         headers: {
-
-        },
+          'Authorization': `Bearer ${token}`,
+          'username': username,
+          'description': description
+        }
       })
         .then(response => response.json())
         .then(data => {
           console.log(data);
+
+          if (data.success) {
+            const updatedUsedStorage = usedStorage + selectedFile.size;
+            setUsedStorage(updatedUsedStorage);
+
+            setUploadSuccess(true);
+            updateFileExplorer();
+          } else {
+
+            if (data.error.includes('virus detected')) {
+              setVirusDetected(true);
+            } else {
+              console.error('Error uploading file:', data.error);
+            }
+          }
         })
         .catch(error => {
           console.error('Error uploading file:', error);
+        })
+        .finally(() => {
+          setUploading(false);
         });
     }
   };
 
   return (
     <div>
-    <input
-      type="file"
-      ref={fileInputRef}
-      onChange={handleFileChange}
-      style={{ display: 'none' }} 
-    />
-      <input type="file" onChange={handleFileChange} />
-      <button onClick={handleUpload}>Upload</button>
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+      />
+      <label htmlFor="fileInput">Choose a File</label>
+      <button onClick={() => fileInputRef.current.click()} disabled={uploading}>
+        {uploading ? (
+          <div className="loader"></div>
+        ) : (
+          'Upload'
+        )}
+      </button>
     </div>
   );
 };

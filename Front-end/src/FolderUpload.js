@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 
-const FolderUpload = () => {
+const FolderUpload = ({ setIsMaxStorageReached, uploadSuccess, setVirusDetected, description, publish, updateFileExplorer })  => {
   const [selectedFiles, setSelectedFiles] = useState(null);
   const [selectedFolderName, setSelectedFolderName] = useState(null);
   const [totalStorageMB, setTotalStorageMB] = useState(0);
   const [usedStorageMB, setUsedStorageMB] = useState(0);
   const [userTier, setUserTier] = useState('');
   const [userFiles, setUserFiles] = useState([]);
+  
 
   const tierToStorageLimit = { 
     free: 100,
@@ -18,7 +19,6 @@ const FolderUpload = () => {
   useEffect(() => {
     fetchStorageInfo(); 
   }, []);
-
   const handleFileChange = (event) => {
     const files = event.target.files;
     setSelectedFiles(files);
@@ -28,8 +28,10 @@ const FolderUpload = () => {
       const folderNames = folderPath.split('/');
       const folderName = folderNames[folderNames.length - 2];
       setSelectedFolderName(folderName);
+      handleUpload();
     }
   };
+
   const handleUpload = () => {
     if (!selectedFiles || selectedFiles.length === 0 || !selectedFolderName) {
       console.error('Please select files and choose a folder.');
@@ -46,13 +48,14 @@ const FolderUpload = () => {
       console.error(`File size exceeds your storage limit of ${userTierLimit} MB.`);
       return;
     }
-
+  
     const updatedUsedStorageMB = usedStorageMB + totalSelectedFileSize;
     if (updatedUsedStorageMB > userTierLimit * 1024 * 1024) {
       console.error(`Uploading these files will exceed your storage limit of ${userTierLimit} MB.`);
+      setIsMaxStorageReached(true);
       return;
     }
-
+    setIsMaxStorageReached(false);
     const formData = new FormData();
   
     for (let i = 0; i < selectedFiles.length; i++) {
@@ -62,6 +65,7 @@ const FolderUpload = () => {
   
     const username = localStorage.getItem('username');
     const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('user_id');
     if (!username || !token) {
       console.error('User_id, username, or token not found in localStorage.');
       return;
@@ -69,6 +73,9 @@ const FolderUpload = () => {
   
     formData.append('folderName', selectedFolderName);
     formData.append('username', username);
+    formData.append('user_id', userId)
+    formData.append('description', description);
+    formData.append('publish', publish);
   
     fetch('http://localhost:5000/api/upload1', {
       method: 'POST',
@@ -80,17 +87,32 @@ const FolderUpload = () => {
       .then(response => response.json())
       .then(data => {
         if (data.error) {
-          console.error('Error uploading file:', data.error);
+          if (data.error.includes('virus detected')) {
+
+            setVirusDetected(true);
+            
+          } else {
+            console.error('Error uploading file:', data.error);
+          }
         } else {
           console.log(data);
           const updatedUsedStorageMB = usedStorageMB + totalSelectedFileSize;
           setUsedStorageMB(updatedUsedStorageMB);
+          uploadSuccess(true);
+          updateFileExplorer();
         }
       })
       .catch(error => {
         console.error('Error uploading file:', error);
+
       });
   };
+
+  const handleFolderUploadClick = () => {
+    const fileInput = document.getElementById('folderInput');
+    fileInput.click();
+  };
+
   const fetchStorageInfo = () => {
     const token = localStorage.getItem('token');
 
@@ -129,10 +151,22 @@ const FolderUpload = () => {
       });
   };
 
+
   return (
     <div>
-      <input type="file" onChange={handleFileChange} multiple directory="" webkitdirectory="" mozdirectory="" />
-      <button onClick={handleUpload}>Upload</button>
+      <form onSubmit={handleUpload}>
+        <input
+          id="folderInput"
+          type="file"
+          onChange={handleFileChange}
+          multiple
+          directory=""
+          webkitdirectory=""
+          style={{ display: 'none' }}
+        />
+        <label htmlFor="folderInput">Choose a Folder</label>
+        <button type="button" onClick={handleFolderUploadClick}>Upload</button>
+      </form>
     </div>
   );
 };

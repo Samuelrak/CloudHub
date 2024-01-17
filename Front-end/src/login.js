@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
+import './Login.css'; 
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState('');
@@ -40,11 +41,11 @@ function Login({ onLogin }) {
   };
 
   return (
-    <div>
+    <div className="login-container">
       <h2>Login</h2>
       {error && <p className="error-message">{error}</p>}
-      <form onSubmit={handleLogin}>
-        <div className="form-group">
+      <form className='form-login' onSubmit={handleLogin}>
+        <div className="form-group-login1">
           <label>Username</label>
           <input
             type="text"
@@ -53,7 +54,7 @@ function Login({ onLogin }) {
             required
           />
         </div>
-        <div className="form-group">
+        <div className="form-group-login1">
           <label>Password</label>
           <input
             type="password"
@@ -62,8 +63,11 @@ function Login({ onLogin }) {
             required
           />
         </div>
-        <button type="submit">Login</button>
+        <button className='button-login' type="submit">Login</button>
       </form>
+      <p className="signup-link">
+        Don't have an account? <Link to="/register">Sign Up</Link>
+      </p>
     </div>
   );
 }

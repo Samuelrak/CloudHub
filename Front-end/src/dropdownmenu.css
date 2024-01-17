@@ -1,0 +1,54 @@
+/* dropdownmenu.css */
+
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.toggle-bar {
+  cursor: pointer;
+  padding: 10px;
+  background-color: #333;
+  color: white;
+  border: 1px solid #666;
+  border-radius: 5px;
+}
+
+.toggle-bar:hover {
+  background-color: #444;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  display: none;
+  z-index: 1;
+}
+
+.dropdown-menu li {
+  list-style: none;
+}
+
+.dropdown-menu a,
+.dropdown-menu button {
+  display: block;
+  padding: 10px 20px;
+  text-decoration: none;
+  color: #333;
+}
+
+.dropdown-menu a:hover,
+.dropdown-menu button:hover {
+  background-color: #f0f0f0;
+}
+
+/* Show the dropdown menu when the parent .dropdown-container is hovered or clicked */
+.dropdown-container:hover .dropdown-menu,
+.dropdown-container:focus-within .dropdown-menu {
+  display: block;
+}

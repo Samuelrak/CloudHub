@@ -2,12 +2,15 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import DropdownMenu from './dropdownmenu'; 
 import './Header.css';
+import logoImage from './output-onlinepngtools.png'
 
 function Header() {
   return (
     <div className="header">
       <div className="logo">
-        <img src="cloudhub.png" alt="cloudhub logo" />
+      <img src={logoImage}
+      alt="cloudhub logo" />
+
       </div>
       <div className="menu">
         <ul>
@@ -17,7 +20,7 @@ function Header() {
             </NavLink>
           </li>
           <li>
-            <NavLink to="/about" activeClassName="active">
+            <NavLink to="/dashboard" activeClassName="active">
               About
             </NavLink>
           </li>

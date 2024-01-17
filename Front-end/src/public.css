@@ -1,17 +1,290 @@
+
+.files-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+
+.search-bar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 0 10%;
+}
+
+.search-bar input[type="text"] {
+
+  padding: 10px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+}
+
+.search-bar button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.search-bar button:hover {
+  background-color: #0056b3;
+}
+
+
+.files-carousel {
+  display: flex;
+  overflow-x: auto;
+  padding-left: 10%; 
+  white-space: nowrap;
+  background-color: rgb(61, 61, 61);
+}
+
+.file-item {
+  width: calc(20% - 10px); 
+  margin-bottom: 20px;
+}
+
 .file-box {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border: 1px solid #ccc;
-    margin-bottom: 10px;
-  }
-  
-  .file-logo {
-    width: 50px; 
-    height: 50px; 
-    margin-right: 10px;
-  }
-  
-  .file-details {
-    flex: 1;
-  }
+  border-radius: 10px;
+  width: 150px; 
+  height: 150px;
+  position: relative;
+  background-color: #eee;
+  margin-left: 100px;
+  background-color: rgb(40, 40, 40);
+}
+.file-name {
+  text-align: center;
+  padding-top: 5px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.center-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  height: 100vh; 
+}
+
+
+.see-more {
+  display: flex;
+  justify-content: center;
+}
+
+.see-more-button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+
+.pagination-button {
+  padding: 5px 10px;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin: 0 5px;
+  cursor: pointer;
+}
+
+.pagination-button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+
+.search-bar {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.search-bar input[type="text"] {
+  padding: 10px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  width: 300px; 
+}
+
+.search-bar button {
+  padding: 10px 20px;
+  margin-left: 10px;
+  background-color: #5C6BC0; 
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.search-bar button:hover {
+  background-color: #3F51B5;
+}
+
+
+datalist {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  max-height: 150px; 
+  overflow-y: auto; 
+  background-color: rgb(61, 61, 61);
+}
+
+
+datalist option {
+  padding: 5px;
+  cursor: pointer;
+}
+
+
+datalist option:hover, datalist option:focus {
+  background-color: rgb(61, 61, 61);
+}
+
+.filter-bar {
+  margin-bottom: 20px;
+}
+.filter-sort-bar {
+  display: flex;
+
+}
+
+/* Shared styles for both "Filter by" and "Sort by" dropdowns */
+.filter-select,
+.sort-select {
+  padding: 10px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+}
+
+
+.autocomplete-container {
+  position: relative;
+  width: 300px;
+  font-family: Arial, sans-serif;
+}
+
+
+.autocomplete-container input[type="text"] {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 14px;
+  border: 2px solid #333;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+
+.autocomplete-container .suggestions-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  border: 2px solid #333;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  background-color: #FFF;
+  z-index: 1000; 
+  overflow: hidden; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+.autocomplete-container .suggestions-container .suggestion-item {
+  padding: 8px 10px;
+  cursor: pointer;
+  line-height: 1.4; 
+}
+
+.autocomplete-container .suggestions-container .suggestion-item:hover {
+  background-color: #F6F6F6;
+}
+
+
+.autocomplete-container .suggestions-container .suggestion-item.active {
+  background-color: #E9E9E9;
+}
+
+.file-list-container {
+  width: 100%; 
+  max-height: 400px; 
+  overflow-y: auto;
+  background: #FFF;
+  border: 1px solid #000; 
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  box-sizing: border-box; 
+  background-color: rgb(61, 61, 61);
+}
+
+
+.file-list-item {
+  font-family: 'Arial', sans-serif; 
+  color: #000;
+  padding: 8px 0; 
+  border-bottom: 1px solid #DDD; 
+  cursor: pointer;
+}
+
+.file-list-item:last-child {
+  border-bottom: none;
+}
+
+.file-list-item:hover {
+  background-color: #F5F5F5;
+}
+
+.full{
+  background-color: rgb(66, 66, 66);
+}
+
+.file-box-inside {
+  border-radius: 10px;
+  width: 500px;
+  height: 500px; 
+  position: relative;
+  background-color: #eee;
+  margin-top: 10px;
+  background-color: rgb(38, 38, 38);
+}
+.file-details-container {
+  display: flex;
+  flex: 7;
+  height: 350px;
+}
+
+
+.file-box-container {
+  flex: 10; 
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+}
+
+.file-box-inside {
+  width: 350px; 
+  height: 350px;
+}
+
+.comments-container {
+  margin-left: 50px;
+  flex: 3;
+  padding: 10px; 
+  border-left: 1px solid #ccc; 
+}
+
+.file-box-comments{
+  margin-left: 50px;
+}
+

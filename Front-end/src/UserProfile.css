@@ -1,0 +1,364 @@
+.user-public-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    border-style: solid 4px;
+    border-color: #000;
+  }
+  
+  .avatar {
+    width: 300px;
+    height: 300px;
+    border-radius: 10px;
+    overflow: hidden; 
+    margin-right: 20px;
+    border-style: solid 4px;
+    border-color: #000;
+  }
+  
+  .avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 1000px;
+    object-fit: cover;
+    border-style: solid 4px;
+    border-color: #000;
+
+  }
+  
+  .user-details {
+    flex-grow: 1;
+  }
+  
+  .horizontal-line {
+    border-top: 1px solid #000;
+    width: 100%;
+    margin-top: 20px; 
+  }
+
+    
+  .horizontal-line1 {
+    border-top: 1px solid #000; 
+    width: 1080px; 
+    margin-top: 20px; 
+    margin-left: 35px;
+  }
+
+  .horizontal-line2  {
+    border-top: 1px solid #000; 
+    width: 1090px; 
+    margin-top: 20px; 
+    margin-left: 390px;
+  }
+
+  .user-details h2 {
+    margin: 0;
+    color: #333;
+  }
+  
+  .user-details p {
+    color: #666; 
+  }
+  
+  button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #0056b3; 
+  }
+  
+  @media (max-width: 600px) {
+    .user-info {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .avatar {
+      margin-right: 0;
+      margin-bottom: 20px;
+    }
+  }
+  
+  .form-container {
+    display: flex;
+    flex-direction: column;
+  
+  }
+  
+  .form-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px; 
+  }
+  
+  .form-field {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    margin-right: 10px; 
+    flex: 1; 
+  }
+
+  .right-side-field {
+    margin-left: 10px; 
+  }
+  
+  .form-field.full-width {
+    width: 100%;
+  }
+  
+  label {
+    margin-bottom: 5px;
+  }
+  .right-side-field {
+    margin-left: 10px; 
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"] {
+    padding: 5px;
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+  }
+  .line-container {
+    position: relative;
+    height: 500px; 
+  }
+  
+  .vertical-line {
+    border-left: 15px solid #000; 
+    height: 1500px;
+    position: absolute;
+    left: 350px;
+    bottom: 50px; 
+  }
+
+  .vertical-line2 {
+    border-left: 15px solid #000; 
+    height: 1500px;
+    position: absolute;
+    left: 350px;
+  }
+
+  
+  .heatmap-container {
+    position: absolute;
+    top: 80px;
+    display: flex; 
+    flex-direction: column; 
+    width: max-content; 
+    gap: 2px;
+    margin-bottom: 50000px;
+    margin-left: 400px;
+  }
+  
+  .heatmap-row {
+    display: flex; 
+    gap: 2px;
+  }
+  
+  .heatmap-cell {
+    width: 20px; 
+    height: 20px; 
+    margin-right: 0.5px; 
+    background-color: #e0e0e0; 
+
+    box-sizing: border-box;
+  }
+  
+
+  .heatmap-cell.level-1 { background-color: #c6e48b; }
+  .heatmap-cell.level-2 { background-color: #7bc96f; }
+  .heatmap-cell.level-3 { background-color: #239a3b; }
+  .heatmap-cell.level-4 { background-color: #196127; }
+
+  .recent-upload {
+    background-color: red; 
+  }
+  
+  .medium-upload {
+    background-color: yellow; 
+  }
+  
+  .older-upload {
+    background-color: green; 
+  }
+
+  .heatmap-cell-light {
+    background-color: #ff0000; 
+  }
+  
+  .heatmap-cell-medium {
+    background-color: #060000;
+  }
+  
+  .heatmap-cell-dark {
+    background-color: #a75050; 
+  }
+  
+  .heatmap-cell-very-dark {
+    background-color: #ff0000;
+  }
+
+  .heatmap-month-headers {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .heatmap-month-header {
+    flex: 1;
+    text-align: center;
+  }
+
+  .user-list-table {
+    width: 1100px;
+    border-collapse: collapse;
+  }
+  
+  .user-list-table th, .user-list-table td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+  }
+  
+  .user-list-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  .user-list-table th {
+    background-color: #4CAF50;
+    color: white;
+  }
+
+  .user-files-table {
+    width: 1100px;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  .user-files-table th, .user-files-table td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+  }
+  
+  .user-files-table tr:nth-child(even) {
+    background-color: white;
+  }
+  
+  .user-files-table th {
+    background-color: #1751ff;
+    color: white;
+    width: 800px;
+  }
+  
+  .file-pagination {
+    margin-top: 10px;
+    text-align: center;
+  }
+  
+  .file-pagination button {
+    margin: 5px;
+    padding: 5px 10px;
+    background-color: #1751ff;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .file-pagination button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .count{
+    margin-left: 300px;
+  }
+
+  .uploaded-files{
+    position: absolute;
+    margin-bottom: 1150px;
+    margin-left: 800px;
+  }
+
+ .user-info-detail{
+  margin-left: 420px;
+ }
+
+ .counting-div{
+  margin-left: 250px;
+ }
+
+ .counting-h2{
+  margin-left: 450px;
+ }
+
+ .count-container {
+  white-space: nowrap; 
+
+}
+.count1 {  
+  position: absolute;
+  margin-left: 40px; 
+}
+.count2 {  
+  position: absolute;
+  margin-left: 430px; 
+}
+.count3 {  
+  position: absolute;
+  margin-left: 800px; 
+}
+
+.notify-container{
+  margin-left: 360px;
+}
+.notify-h2{
+  margin-left: 450px;
+}
+
+.notification-table {
+  width: 98%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  margin-left: 30px;
+}
+
+.notification-table th,
+.notification-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.notification-table th {
+  background-color: #f2f2f2;
+}
+
+.notification-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.notification-table tr:hover {
+  background-color: #ddd;
+}
+
+.admin-table{
+  position: absolute;
+  margin-left: 390px;
+}

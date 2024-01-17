@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Comment.css';
 
-function Comment({ file_id }) {
+function CommentPublic({ file_id }) {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -11,6 +11,7 @@ function Comment({ file_id }) {
   const fetchComments = async () => {
     try {
       const token = localStorage.getItem('token');
+      const usernametoken = localStorage.getItem('username');
       
       const headers = {
         Authorization: `Bearer ${token}`
@@ -26,12 +27,18 @@ function Comment({ file_id }) {
   const postComment = async () => {
     try {
       const token = localStorage.getItem('token'); 
+      const usernametoken = localStorage.getItem('username');
       
       const headers = {
         Authorization: `Bearer ${token}`
       };
 
-      await axios.post(`http://localhost:5000/api/comments/${file_id}`, { commentText }, { headers });
+      const requestBody = {
+        commentText,
+        usernametoken 
+      };
+
+      await axios.post(`http://localhost:5000/api/comments-public/${file_id}`, requestBody, { headers });
       setCommentText('');
       fetchComments();
     } catch (error) {
@@ -42,6 +49,7 @@ function Comment({ file_id }) {
   useEffect(() => {
     fetchComments();
   }, [file_id]);
+
 
   const indexOfLastComment = currentPage * commentsPerPage;
   const indexOfFirstComment = indexOfLastComment - commentsPerPage;
@@ -92,4 +100,4 @@ function Comment({ file_id }) {
   );
 }
 
-export default Comment;
+export default CommentPublic;
