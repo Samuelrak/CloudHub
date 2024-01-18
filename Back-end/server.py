@@ -15,7 +15,7 @@ from google.cloud import vision_v1
 from google.protobuf.json_format import MessageToJson
 from sklearn.ensemble import RandomForestClassifier
 import numpy as np
-
+import psycopg2
 
 
 app = Flask(__name__)
@@ -32,7 +32,8 @@ SECRET_KEY = 'your_secret_key'
 import os
 import base64
 os.environ['OPENAI_API_KEY'] =  "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"
-db = mysql.connector.connect(**db_config)
+db1 = mysql.connector.connect(**db_config)
+db = psycopg2.connect(**db_config)
 video_client = videointelligence.VideoIntelligenceServiceClient()
 image_client = vision_v1.ImageAnnotatorClient()
 cursor = db.cursor(dictionary=True)
