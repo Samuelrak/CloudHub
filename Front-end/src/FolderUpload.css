@@ -1,0 +1,34 @@
+.button-container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .spinner {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    display: none; /* Hide the spinner by default */
+  }
+  
+  .spinner.active {
+    display: inline-block; /* Display the spinner when active */
+    margin-left: 5px;
+  }
+  .input-folder{
+    position: absolute;
+  
+  }
+
+  .button-folder{
+    margin-left: 200px;
+  }

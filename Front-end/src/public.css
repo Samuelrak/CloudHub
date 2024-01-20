@@ -56,6 +56,17 @@
   margin-left: 100px;
   background-color: rgb(40, 40, 40);
 }
+
+.file-box1 {
+  border-radius: 10px;
+  width: 300px; 
+  height: 300px;
+  position: relative;
+  background-color: #eee;
+  margin-left: 100px;
+  background-color: rgb(40, 40, 40);
+}
+
 .file-name {
   text-align: center;
   padding-top: 5px;
@@ -140,13 +151,23 @@ datalist {
   background-color: rgb(61, 61, 61);
 }
 
+.owner{
+  color: #000;
+}
+
 
 datalist option {
   padding: 5px;
   cursor: pointer;
 }
 
+.empty1{
+  height: 10px;
+}
 
+.owner12{
+  font-size: 20px;
+}
 datalist option:hover, datalist option:focus {
   background-color: rgb(61, 61, 61);
 }
@@ -288,3 +309,9 @@ datalist option:hover, datalist option:focus {
   margin-left: 50px;
 }
 
+.download-button{
+  position: absolute;
+  margin-left: 200px;
+  height: 60px;
+  width: 100px;
+}

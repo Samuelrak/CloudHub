@@ -1,0 +1,16 @@
+.centered-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* This makes the container take up the full viewport height */
+    border-style: solid 3px;
+    border-radius: 60px;
+    border-color: black;
+  }
+
+  .divko{
+    border-style: solid 3px;
+    border-radius: 60px;
+    border-color: black;
+  }

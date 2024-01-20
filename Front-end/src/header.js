@@ -21,12 +21,7 @@ function Header() {
           </li>
           <li>
             <NavLink to="/dashboard" activeClassName="active">
-              About
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/features" activeClassName="active">
-              Features
+              Dashboard
             </NavLink>
           </li>
           <li>
@@ -34,18 +29,10 @@ function Header() {
               Pricing
             </NavLink>
           </li>
-          <li>
-            <NavLink to="/contact" activeClassName="active">
-              Contact
-            </NavLink>
-          </li>
         </ul>
       </div>
-      <div className="user">
-        <img src="user.png" alt="user icon" />
         <DropdownMenu />
       </div>
-    </div>
   );
 }
 

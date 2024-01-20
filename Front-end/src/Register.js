@@ -99,6 +99,7 @@ function Register() {
   };
 
   return (
+    <div className="custom-background">
     <div className="register-container">
       <h2>Register</h2>
       {error && <p className="error-message">{error}</p>}
@@ -202,7 +203,7 @@ function Register() {
         </div>
         <button className='button-register' type="submit-register">Register</button>
       </form>
-    </div>
+    </div> </div>
   );
 }
 

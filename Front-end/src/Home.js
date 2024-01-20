@@ -3,6 +3,7 @@ import Header from './header';
 import PublicFiles from './public';
 import SearchBar from './SearchBar';
 import Carrousel from './Carrousel';
+import Footer from './Footer';
 
 function Home() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -15,6 +16,7 @@ function Home() {
       <Header />
       <Carrousel />
       <PublicFiles files={searchTerm ? files : []} />
+      <Footer />
     </>
   );
 }

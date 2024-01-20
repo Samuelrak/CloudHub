@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import axios from 'axios'; 
+import './CreditCard.css'
 
 const CreditCart = () => {
   const navigate = useNavigate();
@@ -68,18 +69,30 @@ const CreditCart = () => {
   }, []);
 
   return (
-    <div>
-      <h2>Payment Information</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <CardElement options={{ style: { base: { fontSize: '16px' } } }} />
-        </div>
-        <button type="submit">Pay</button>
-      </form>
-      <p>Username: {username}</p>
-      <p>Tier: {tier}</p>
-      {paymentError && <div className="error-message">{paymentError}</div>}
-      {paymentSuccess && <div className="success-message">Payment successful!</div>}
+    <div className='centered-container'> {/* Apply CSS to center this div */}
+      <div className='divko'>
+        <h2>Payment Information</h2>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <CardElement options={{ style: { base: { fontSize: '16px' } } }} />
+          </div>
+          <button type="submit">Pay</button>
+        </form>
+      </div>
+      <div>
+        <p className='tuser'>Username: {username}</p>
+        <p className='ttier'>Tier: {tier}</p>
+        {paymentError && (
+          <div className="error-message">
+            <span role="img" aria-label="Error">❌</span> {paymentError}
+          </div>
+        )}
+        {paymentSuccess && (
+          <div className="success-message">
+            <span role="img" aria-label="Success">✅</span> Payment successful!
+          </div>
+        )}
+      </div>
     </div>
   );
 };

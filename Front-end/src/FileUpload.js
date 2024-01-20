@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
+import './FileUpload.css'
 
-const FileUpload = ({ setIsMaxStorageReached, setUploadSuccess, setVirusDetected, description, publish, updateFileExplorer, currentFolderId }) => {
+const FileUpload = ({ setIsMaxStorageReached, setUploadSuccess, setVirusDetected, description, publish, updateFileExplorer, currentFolderId, handleFileUploadSuccess  }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
   const [userTier, setUserTier] = useState('');
@@ -59,7 +60,7 @@ const handleFileChange = (event) => {
   const file = event.target.files[0];
   setSelectedFile(file);
   if (file) {
-    handleUpload(); // Automatically start the upload when a file is selected.
+    handleUpload(); 
   }
 };
 
@@ -110,6 +111,7 @@ const handleFileChange = (event) => {
 
             setUploadSuccess(true);
             updateFileExplorer();
+            handleFileUploadSuccess(data.data);
           } else {
 
             if (data.error.includes('virus detected')) {
@@ -129,21 +131,34 @@ const handleFileChange = (event) => {
   };
 
   return (
-    <div>
+    <div className="file-upload">
       <input
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
-      <label htmlFor="fileInput">Choose a File</label>
-      <button onClick={() => fileInputRef.current.click()} disabled={uploading}>
-        {uploading ? (
-          <div className="loader"></div>
-        ) : (
-          'Upload'
-        )}
-      </button>
+      <div className="buttons-container">
+        <button
+          className="choose-file-button"
+          onClick={() => fileInputRef.current.click()}
+        >
+          Choose File
+        </button>
+        <button
+          className="upload-button"
+          onClick={handleUpload}
+          disabled={!selectedFile || uploading}
+        >
+          Upload
+        </button>
+      </div>
+      {uploading && (
+        <div className="uploading-indicator">
+          <div className="circular-spinner"></div>
+          <p>Uploading...</p>
+        </div>
+      )}
     </div>
   );
 };

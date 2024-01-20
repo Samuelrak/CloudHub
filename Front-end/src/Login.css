@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: center;
     height: 80vh;
-    background-color: rgb(107, 107, 116);
+    background-color: blueviolet;
     max-width: 500px;
     margin: auto;
     margin-top: 80px;
@@ -14,8 +14,7 @@
   }
   
 
-  
-  
+
 
   .form-login {
     display: flex;
@@ -71,4 +70,4 @@
     color: #0749ff;
     font-weight: bold;
   }
-  
+

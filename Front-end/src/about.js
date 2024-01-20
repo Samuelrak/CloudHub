@@ -5,6 +5,7 @@ import FileUpload from './FileUpload';
 import FolderUpload from './FolderUpload'; 
 import FileViewButton from './FileViewButton';
 import FileExplorer from './FileExplorer';
+import Footer from './Footer';
 
 function Home() {
 
@@ -39,6 +40,7 @@ function Home() {
 
 />
     </div>
+
   );
 }
 

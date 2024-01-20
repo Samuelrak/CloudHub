@@ -35,8 +35,17 @@ const FileExplorer = () => {
   const [virusDetected, setVirusDetected] = useState(false);
   const [description, setDescription] = useState(''); 
   const [publish, setPublish] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [fileCount, setFileCount] = useState(0);
+  const [folderCount, setFolderCount] = useState(0);
+  const [folderPath, setFolderPath] = useState('Root');
+  const [isFileSelected, setIsFileSelected] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredFiles, setFilteredFiles] = useState([]);
+  const [filteredFolders, setFilteredFolders] = useState([]);
 
-  
 
   const tierToStorageLimit = {
     free: 100,
@@ -198,7 +207,7 @@ const FileExplorer = () => {
     const url = folderId
       ? `http://localhost:5000/api/files?folder_id=${folderId}`
       : 'http://localhost:5000/api/files';
-    console.log('token:', token);
+  
     fetch(url, {
       method: 'GET',
       headers: {
@@ -210,12 +219,16 @@ const FileExplorer = () => {
         if (data.success) {
           setFilesInFolder(data.data.files);
           setFolders(data.data.folders);
+          
+          // Update file and folder counts
+          setFileCount(data.data.files.length);
+          setFolderCount(data.data.folders.length);
   
           const publicStatus = {};
           data.data.files.forEach((file) => {
             publicStatus[file.file_id] = file.is_public;
           });
-          
+  
           setFilePublicStatus(publicStatus);
         } else {
           console.error('Error fetching files and folders:', data.error);
@@ -236,14 +249,15 @@ const FileExplorer = () => {
   const handleBackButtonClick = () => {
     if (showFileDetails) {
       updateFilePublicStatus(filesInFolder);
-      
+  
       setShowFileDetails(false);
       setShowFolders(true);
+      setIsFileSelected(false);
     } else if (folderHistory.length > 1) {
       folderHistory.pop();
       const previousFolderId = folderHistory[folderHistory.length - 1];
       setCurrentFolderId(previousFolderId);
-      folderHistoryRef.current = folderHistory.slice(); 
+      folderHistoryRef.current = folderHistory.slice();
   
       fetchFilesAndFolders(previousFolderId, token);
     } else {
@@ -252,8 +266,24 @@ const FileExplorer = () => {
       setSelectedFileDetails(null);
       folderHistoryRef.current = [];
   
+      // Fetch the root folder (null folderId)
       fetchFilesAndFolders(null, token);
     }
+  };
+
+  const filterFilesAndFolders = () => {
+    const lowerCaseQuery = searchQuery.toLowerCase();
+  
+    const filteredFiles = userFiles.filter((file) =>
+      file.file_name.toLowerCase().includes(lowerCaseQuery)
+    );
+  
+    const filteredFolders = folders.filter((folder) =>
+      folder.folder_name.toLowerCase().includes(lowerCaseQuery)
+    );
+  
+    setFilteredFiles(filteredFiles);
+    setFilteredFolders(filteredFolders);
   };
 
   const updateFileExplorer = () => {
@@ -289,6 +319,32 @@ const FileExplorer = () => {
     return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
   }
 
+  const handleRemoveFolder = (folderId, event) => {
+    event.preventDefault(); 
+    event.stopPropagation(); 
+    
+    if (window.confirm("Are you sure you want to remove this folder and its contents?")) {
+      fetch(`http://localhost:5000/api/remove-folder/${folderId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            console.log('Folder removed successfully');
+            
+            fetchFilesAndFolders(currentFolderId, token);
+          } else {
+            console.error('Failed to remove the folder:', data.error);
+          }
+        })
+        .catch((error) => {
+          console.error('Error removing the folder:', error);
+        });
+    }
+  };
   const handleFileClick = (fileId, username) => {
     console.log(username);
     fetch(`http://localhost:5000/api/fileDetails?fileId=${fileId}`, {
@@ -308,6 +364,7 @@ const FileExplorer = () => {
   
           setShowFolders(false);
           setShowFileDetails(true);
+          setIsFileSelected(true);
         } else {
           console.error('Error fetching file details:', data.error);
         }
@@ -318,11 +375,11 @@ const FileExplorer = () => {
   };
 
   const handleDownloadClick = (fileId) => {
-    fetch(`http://localhost:5000/api/download/${fileId}`, {
+    fetch(`http://localhost:5000/api/download/private/${fileId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Username': `Username ${selectedFileDetails[4]}`
+        'username': `username ${selectedFileDetails[4]}`
       },
     })
       .then((response) => {
@@ -424,10 +481,18 @@ const FileExplorer = () => {
     fetchStorageInfo();
     fetchFilesAndFolders(null, token);
   }, []);
+
+  
   
   useEffect(() => {
     if (uploadSuccess) {
-      fetchStorageInfo(); // Only call fetchStorageInfo when uploadSuccess is true
+      setShowSuccessMessage(true);
+
+      // Delay the call to fetchStorageInfo() for 3 seconds
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+        fetchStorageInfo();
+      }, 3000); // 3000 milliseconds (3 seconds)
     }
   }, [uploadSuccess]);
   
@@ -444,9 +509,10 @@ const FileExplorer = () => {
   }, [selectedFileDetails]);
 
   return (
-   
     <div className='upload-info'>
-            <div className='upload-info1'>
+
+        <p className='h1b'>My Dashboard</p>
+        <div className='upload-info1'>
        <FileUpload
         setIsMaxStorageReached={setIsMaxStorageReached}
         setUploadSuccess={setUploadSuccess} 
@@ -457,7 +523,7 @@ const FileExplorer = () => {
         currentFolderId={currentFolderId} 
 
       />
-
+      <div className='empty-bar'></div>
         <FolderUpload
         setIsMaxStorageReached={setIsMaxStorageReached}
         setUploadSuccess={setUploadSuccess}
@@ -468,9 +534,9 @@ const FileExplorer = () => {
         currentFolderId={currentFolderId} 
 
       />
-
- 
-
+<div className='empty-bar'></div>
+  
+       <div className='empty-bar'></div>
       {isMaxStorageReached && (
         <div>
           <p>You have reached the maximum storage limit.</p>
@@ -483,42 +549,43 @@ const FileExplorer = () => {
         </div>
       )}
 
-{uploadSuccess && (
-  <div>
-    <p>Successful Uploaded</p>
-    {fetchStorageInfo()}
-  </div>
-)}
+ {showSuccessMessage && (
+        <div>
+          <p>Successful Uploaded</p>
+        </div>
+      )}
 <div>
   <label>
-    Description:
-    <input type="text" value={description} onChange={handleDescriptionChange} />
+    <p className = "description1">Description:</p>
+    <input className = "description" type="text" value={description} onChange={handleDescriptionChange} />
+  </label>
+</div>
+<div className='empty-bar'></div>
+<div>
+  <label>
+  <p className = "publish1">Publish:</p>
+    <input className = "publish" type="checkbox" checked={publish} onChange={handlePublishChange} />
   </label>
 </div>
 <div>
-  <label>
-    Publish:
-    <input type="checkbox" checked={publish} onChange={handlePublishChange} />
-  </label>
-</div>
-<div>
-  <input
+  <p className = "foldec3">Create Folder:</p>
+  <input className = "foldec1"
     type="text"
-    placeholder="New Folder Name"
     value={newFolderName}
     onChange={(e) => setNewFolderName(e.target.value)}
   />
-  <button onClick={handleCreateFolder}>Create Folder</button>
+  <button className = "foldec2" onClick={handleCreateFolder}>Create Folder</button>
 </div>
 
 </div>
+
 <div className='storage count'>
 <div className="storage-bar">
         <div className="storage-used" style={{ width: `${(usedStorageMB / totalStorageMBBar) * 100}%` }}>
         </div>
       </div>
 
-{totalStorageMB} MB Used
+
 </div>
 
 <div className='used'>
@@ -529,13 +596,20 @@ const FileExplorer = () => {
 <p>Total: </p>
 {totalStorageMB} MB Used
 </div>
+<div className='counts12'> 
+  <p>Files: {fileCount}</p>
+  <p>Folders: {folderCount}</p>
+</div>
         <>
-          {currentFolderId !== null && (
-            <div>
-              <button onClick={handleBackButtonClick}>Back</button>
-            </div>
-        
-                      )}  
+        {
+  (folderHistory.length > 0 || isFileSelected) && (
+    <div>
+      <button onClick={handleBackButtonClick}>Back</button>
+    </div>
+  )
+}
+<div className='empty-bar'></div>
+<div className='empty-bar'></div>
           <div className='storage' onDragEnter={handleDragEnter} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
             {showFileDetails && selectedFileDetails ? (
               <div>
@@ -545,40 +619,23 @@ const FileExplorer = () => {
                       <th className="th">File Name</th>
                       <th className="th">File Size</th>
                       <th className="th">Public</th>
-                      <th className="th">Download</th>
                       <th className="th">User</th>
+                      <th className="th">Created at</th>
+                      <th className="th">Download</th>
                     </tr>
                     <tr>
                       <td className="td">{selectedFileDetails[1]}</td>
                       <td className="td">{formatBytes(selectedFileDetails[3])}</td>
                       <td className="td">
-                        <button
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            const fileId = selectedFileDetails[0];
-                            const isPublic = filePublicStatus[fileId];
-                            if (isPublic) {
-                              handleMakePrivate(fileId);
-                            } else {
-                              handleMakePublic(fileId);
-                            }
-                            setFilePublicStatus((prevStatus) => ({
-                              ...prevStatus,
-                              [fileId]: !isPublic,
-                            }));
-                          }}
-                          className={filePublicStatus[selectedFileDetails[0]] ? 'private-button' : 'public-button'}
-                        >
-                          {filePublicStatus[selectedFileDetails[0]] ? 'Make Private' : 'Make Public'}
-                        </button>
                         <CommentPrivate file_id={selectedFileDetails[0]} />
                       </td>
+                      <td className="td">{selectedFileDetails[4]}</td>
+                      <td className="td">{selectedFileDetails[6]}</td>
                       <td className="td">
                         <button onClick={() => handleDownloadClick(selectedFileDetails[0])}>
                           Download
                         </button>
                       </td>
-                      <td className="td">{selectedFileDetails[4]}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -630,28 +687,39 @@ const FileExplorer = () => {
             )}
           
           {showFolders && (
-            <div>
-              <table className="table">
-                <thead>
-                  <tr></tr>
-                </thead>
-                <tbody>
-                  {folders.map((folder) => (
-                    <tr
-                      key={folder.folder_id}
-                      onClick={() => handleFolderClick(folder.folder_id, folder.folder_name)}
-                      className="trHover"
+        <div>
+          <table className="table">
+            <thead>
+              <tr></tr>
+            </thead>
+            <tbody>
+              {folders.map((folder) => (
+                <tr
+                  key={folder.folder_id}
+                  onClick={() => handleFolderClick(folder.folder_id, folder.folder_name)}
+                  className="trHover"
+                >
+                  <td className="td">{folder.folder_name}</td>
+                  <td className="td">
+                    <button
+                      className="remove-button"
+                      onClick={(event) => handleRemoveFolder(folder.folder_id, event)}
                     >
-                      <td className="td">{folder.folder_name}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
           </div>
+        
         </>
+        
     </div>
+  
   );
 };
 

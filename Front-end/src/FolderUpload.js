@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import './FolderUpload.css'
 
-const FolderUpload = ({ setIsMaxStorageReached, uploadSuccess, setVirusDetected, description, publish, updateFileExplorer })  => {
+const FolderUpload = ({ setIsMaxStorageReached, uploadSuccess, setVirusDetected, description, publish, currentFolderId, updateFileExplorer }) => {
   const [selectedFiles, setSelectedFiles] = useState(null);
   const [selectedFolderName, setSelectedFolderName] = useState(null);
   const [totalStorageMB, setTotalStorageMB] = useState(0);
   const [usedStorageMB, setUsedStorageMB] = useState(0);
   const [userTier, setUserTier] = useState('');
   const [userFiles, setUserFiles] = useState([]);
-  
+  const [uploading, setUploading] = useState(false); 
 
-  const tierToStorageLimit = { 
+  const tierToStorageLimit = {
     free: 100,
     basic: 250,
     pro: 500,
@@ -17,8 +18,9 @@ const FolderUpload = ({ setIsMaxStorageReached, uploadSuccess, setVirusDetected,
   };
 
   useEffect(() => {
-    fetchStorageInfo(); 
+    fetchStorageInfo();
   }, []);
+
   const handleFileChange = (event) => {
     const files = event.target.files;
     setSelectedFiles(files);
@@ -28,7 +30,7 @@ const FolderUpload = ({ setIsMaxStorageReached, uploadSuccess, setVirusDetected,
       const folderNames = folderPath.split('/');
       const folderName = folderNames[folderNames.length - 2];
       setSelectedFolderName(folderName);
-      handleUpload();
+
     }
   };
 
@@ -37,18 +39,18 @@ const FolderUpload = ({ setIsMaxStorageReached, uploadSuccess, setVirusDetected,
       console.error('Please select files and choose a folder.');
       return;
     }
-  
+
     let totalSelectedFileSize = 0;
     for (let i = 0; i < selectedFiles.length; i++) {
       totalSelectedFileSize += selectedFiles[i].size;
     }
-  
+
     const userTierLimit = tierToStorageLimit[userTier];
     if (totalSelectedFileSize > userTierLimit * 1024 * 1024) {
       console.error(`File size exceeds your storage limit of ${userTierLimit} MB.`);
       return;
     }
-  
+
     const updatedUsedStorageMB = usedStorageMB + totalSelectedFileSize;
     if (updatedUsedStorageMB > userTierLimit * 1024 * 1024) {
       console.error(`Uploading these files will exceed your storage limit of ${userTierLimit} MB.`);
@@ -56,13 +58,15 @@ const FolderUpload = ({ setIsMaxStorageReached, uploadSuccess, setVirusDetected,
       return;
     }
     setIsMaxStorageReached(false);
+    setUploading(true);
+
     const formData = new FormData();
-  
+
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i];
       formData.append('files[]', file);
     }
-  
+
     const username = localStorage.getItem('username');
     const token = localStorage.getItem('token');
     const userId = localStorage.getItem('user_id');
@@ -70,13 +74,16 @@ const FolderUpload = ({ setIsMaxStorageReached, uploadSuccess, setVirusDetected,
       console.error('User_id, username, or token not found in localStorage.');
       return;
     }
-  
+
     formData.append('folderName', selectedFolderName);
     formData.append('username', username);
     formData.append('user_id', userId)
     formData.append('description', description);
     formData.append('publish', publish);
-  
+    if (currentFolderId) {
+      formData.append('folderId', currentFolderId);
+    }
+
     fetch('http://localhost:5000/api/upload1', {
       method: 'POST',
       body: formData,
@@ -88,9 +95,7 @@ const FolderUpload = ({ setIsMaxStorageReached, uploadSuccess, setVirusDetected,
       .then(data => {
         if (data.error) {
           if (data.error.includes('virus detected')) {
-
             setVirusDetected(true);
-            
           } else {
             console.error('Error uploading file:', data.error);
           }
@@ -104,7 +109,9 @@ const FolderUpload = ({ setIsMaxStorageReached, uploadSuccess, setVirusDetected,
       })
       .catch(error => {
         console.error('Error uploading file:', error);
-
+      })
+      .finally(() => {
+        setUploading(false); 
       });
   };
 
@@ -144,29 +151,39 @@ const FolderUpload = ({ setIsMaxStorageReached, uploadSuccess, setVirusDetected,
 
         setTotalStorageMB(totalStorage);
         setUsedStorageMB(usedStorage);
-        setUserFiles(data.files); 
+        setUserFiles(data.files);
       })
       .catch((error) => {
         console.error('Error fetching user storage info:', error);
       });
   };
 
-
   return (
     <div>
-      <form onSubmit={handleUpload}>
-        <input
-          id="folderInput"
-          type="file"
-          onChange={handleFileChange}
-          multiple
-          directory=""
-          webkitdirectory=""
-          style={{ display: 'none' }}
-        />
-        <label htmlFor="folderInput">Choose a Folder</label>
-        <button type="button" onClick={handleFolderUploadClick}>Upload</button>
-      </form>
+      <button className='input-folder' onClick={handleFolderUploadClick}>Choose Folder</button>
+
+      <input
+        type="file"
+        id="folderInput"
+        webkitdirectory="true"
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
+
+      <button
+        className='button-folder'
+        onClick={handleUpload}
+        disabled={!selectedFiles || uploading} 
+      >
+        Upload
+      </button>
+
+      {uploading && (
+        <div className="uploading-indicator">
+          <div className="circular-spinner"></div>
+          <p>Uploading...</p>
+        </div>
+      )}
     </div>
   );
 };

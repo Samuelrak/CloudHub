@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import './UserProfile.css';
 import userImage from './user.png';
+import DefaultProfile from './defaul_user.jpg';
 
 const UserPublic = () => {
   const { username } = useParams();
@@ -24,7 +25,8 @@ const UserPublic = () => {
   const loggedInUsername = localStorage.getItem('username');
   const showUploadButton = username === loggedInUsername;
   const isAdmin = userData.isadmin === 1;
-
+  const isCurrentUser = loggedInUsername === username;
+  
 
 
   const getMonthName = (month) => {
@@ -220,6 +222,8 @@ const UserPublic = () => {
       });
   };
 
+  
+
   const MonthHeaders = () => {
     return (
       <div className="heatmap-month-headers">
@@ -354,8 +358,8 @@ const UserPublic = () => {
 
   const handleUnsubscribe = () => {
     const loggedInUsername = localStorage.getItem('username');
-    const targetUsername = userData.username; 
-
+    const targetUsername = userData.username;
+  
     fetch('http://localhost:5000/api/unsubscribe', {
       method: 'POST',
       headers: {
@@ -364,13 +368,14 @@ const UserPublic = () => {
       },
       body: JSON.stringify({
         subscriberUsername: loggedInUsername,
-        targetUsername: targetUsername, 
+        targetUsername: targetUsername,
       }),
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          setSubscribed(false);
+          setSubscribed(false); // Update the state to reflect unsubscribed
+  
         } else {
           console.error('Error unsubscribing:', data.error);
         }
@@ -379,6 +384,8 @@ const UserPublic = () => {
         console.error('Error unsubscribing:', error);
       });
   };
+
+
   const countSubscribers = async (targetUsername) => {
     try {
       const response = await fetch(`http://localhost:5000/api/counts?targetUsername=${targetUsername}`, {
@@ -516,13 +523,12 @@ const calculateContributions = (userData) => {
   };
 
   useEffect(() => {
-    fetchUsers(); 
+    fetchUsers();
     fetchUserDataAndCheckSubscription();
-    fetchData(username); 
+    fetchData(username);
     setHeatmapData(heatmapMatrix);
     countSubscribers(username);
     fetchPublicFiles();
-   
     fetchNotifications();
   }, [username]);
 
@@ -545,11 +551,11 @@ const calculateContributions = (userData) => {
       className="profile-photo"
     />
   ) : (
-    <img
-      src="/default-avatar.png"
-      alt={`Default Avatar`}
-      className="profile-photo"
-    />
+<img
+  src={DefaultProfile}
+  alt={`Default User Profile`}
+  className="profile-photo"
+/>
   )}
 </div>
 {showUploadButton ? (
@@ -643,11 +649,12 @@ const calculateContributions = (userData) => {
           </div>
         </div>
         </div>
-        <div className='notify-container'>
-  <div className="horizontal-line1"></div>
-  <div className="notifications">
-    <h3 className='notify-h2'>Notifications</h3>
-    <table className="notification-table">
+        {isCurrentUser && (
+        <div className="notify-container">
+          <div className="horizontal-line1"></div>
+          <div className="notifications">
+            <h3 className='notify-h2'>Notifications</h3>
+            <table className="notification-table">
       <thead>
         <tr>
           <th>Notification</th>
@@ -669,13 +676,14 @@ const calculateContributions = (userData) => {
     </table>
   </div>
 </div>
-     
+)}
       <div className="subscription-info">
       </div>
 
       {isAdmin && (
         <div>
           <div className="horizontal-line2"></div>
+          <div className="vertical-line3"></div>
           <div className='admin-table'>
             <h3>User List</h3>
             <table className="user-list-table">

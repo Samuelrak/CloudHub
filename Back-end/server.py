@@ -32,8 +32,7 @@ SECRET_KEY = 'your_secret_key'
 import os
 import base64
 os.environ['OPENAI_API_KEY'] =  "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"
-db1 = mysql.connector.connect(**db_config)
-db = psycopg2.connect(**db_config)
+db = mysql.connector.connect(**db_config)
 video_client = videointelligence.VideoIntelligenceServiceClient()
 image_client = vision_v1.ImageAnnotatorClient()
 cursor = db.cursor(dictionary=True)
@@ -114,6 +113,7 @@ def user_register():
             file_path VARCHAR(255),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             is_public TINYINT(1) DEFAULT 0,
+            description VARCHAR(255),
             user_id INT,
             FOREIGN KEY (user_id) REFERENCES users(user_id)
         );
@@ -161,6 +161,17 @@ def user_register():
         );
         """
         cursor.execute(notifications_table_query)
+
+        likes_table_query = f"""
+            CREATE TABLE IF NOT EXISTS {username}_likes (
+            id INT(11) AUTO_INCREMENT PRIMARY KEY,
+            user_id INT(11) NOT NULL,
+            file_id VARCHAR(255),
+            action ENUM('like', 'dislike'),
+            username VARCHAR(255)
+            );
+            """
+        cursor.execute(likes_table_query)
 
         return jsonify({'success': True, 'message': 'Registration successful'})
     except mysql.connector.Error as err:
@@ -907,9 +918,11 @@ def upload_file():
         token = request.headers.get('Authorization', '').replace('Bearer ', '')
         decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         username = decoded_token.get('username')
-        data = request.headers.get('description')
-        app.logger.debug(username)
-        folder_id = request.form.get('folderId')
+        description = request.form.get('description')
+        publish = request.form.get('publish')
+        publish = "1" if publish.lower() == "true" else "0"
+
+        folder_id = request.form.get('folderId', '')
 
         if 'file' not in request.files:
             return jsonify({'success': False, 'error': 'No file provided'}), 400
@@ -923,17 +936,11 @@ def upload_file():
         file.save(file_path)
 
         try:
-            # scan_result = scan_with_clamwin(file_path)
-            #
-            # if scan_result['infected']:
-            #     os.remove(file_path)
-            #     return jsonify({'success': False, 'error': 'File is infected: ' + scan_result['result']}), 400
+            scan_result = scan_with_clamwin(file_path)
 
-            # explicit_content_detected = scan_for_explicit_content(file_path)
-            #
-            # if explicit_content_detected:
-            #     os.remove(file_path)
-            #     return jsonify({'success': False, 'error': 'Explicit content detected'}), 400
+            if scan_result['infected']:
+                os.remove(file_path)
+                return jsonify({'success': False, 'error': 'File is infected: ' + scan_result['result']}), 400
 
             file_id = str(uuid.uuid4())
             connection = mysql.connector.connect(**db_config)
@@ -945,19 +952,27 @@ def upload_file():
             if folder_id == '':
                 table = f"{username}_files"
                 insert_query = f"""
-                   INSERT INTO `{table}` (file_id, file_name, file_size, username, file_path, user_id)
-                   VALUES (%s, %s, %s, %s, %s, %s)
+                   INSERT INTO `{table}` (file_id, file_name, file_size, username, file_path, user_id, description, is_public)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 file_size = os.path.getsize(file_path)
-                cursor.execute(insert_query, (file_id, filename, file_size, username, file_path, user_id))
+                cursor.execute(insert_query, (file_id, filename, file_size, username, file_path, user_id, description, publish))
+
+                if publish == '1' or publish.lower() == 'true':
+                    public_table = 'public'
+                    public_insert_query = f"""
+                        INSERT INTO `{public_table}` (file_id, file_name, file_size, username, file_path, user_id)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                    """
+                    cursor.execute(public_insert_query, (file_id, filename, file_size, username, file_path, user_id))
             else:
                 table = f"{username}_files"
                 insert_query = f"""
-                   INSERT INTO `{table}` (file_id, file_name, folder_id, file_size, username, file_path, user_id)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s)
+                   INSERT INTO `{table}` (file_id, file_name, folder_id, file_size, username, file_path, user_id, description, is_public)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 file_size = os.path.getsize(file_path)
-                cursor.execute(insert_query, (file_id, filename, folder_id, file_size, username, file_path, user_id))
+                cursor.execute(insert_query, (file_id, filename, folder_id, file_size, username, file_path, user_id, description, publish))
 
             connection.commit()
 
@@ -972,27 +987,26 @@ def upload_file():
         return jsonify({'success': False, 'error': 'Token has expired'}), 401
     except jwt.InvalidTokenError:
         return jsonify({'success': False, 'error': 'Invalid token'}), 401
+def scan_with_clamwin(file_path):
+    clamscan_exe = 'C:/ClamWin/bin/clamscan.exe'
+    database_path = 'C:/ClamWin/bin/db'
 
-# def scan_with_clamwin(file_path):
-#     clamscan_exe = 'C:/ClamWin/bin/clamscan.exe'
-#     database_path = 'C:/ClamWin/bin/db'
-#
-#     if not os.path.isfile(clamscan_exe):
-#         raise Exception(f"The clamscan executable does not exist: {clamscan_exe}")
-#     if not os.path.isdir(database_path):
-#         raise Exception(f"The database directory does not exist: {database_path}")
-#     command = [clamscan_exe, '--database=' + database_path, file_path]
-#
-#     try:
-#         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
-#         if "FOUND" in result.stdout:
-#             return {"infected": True, "result": result.stdout}
-#         elif "OK" in result.stdout:
-#             return {"infected": False, "result": result.stdout}
-#         else:
-#             raise Exception(f"Error scanning file: {result.stderr}")
-#     except subprocess.CalledProcessError as e:
-#         raise Exception(f"ClamWin scan failed: {e.stderr}")
+    if not os.path.isfile(clamscan_exe):
+        raise Exception(f"The clamscan executable does not exist: {clamscan_exe}")
+    if not os.path.isdir(database_path):
+        raise Exception(f"The database directory does not exist: {database_path}")
+    command = [clamscan_exe, '--database=' + database_path, file_path]
+
+    try:
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+        if "FOUND" in result.stdout:
+            return {"infected": True, "result": result.stdout}
+        elif "OK" in result.stdout:
+            return {"infected": False, "result": result.stdout}
+        else:
+            raise Exception(f"Error scanning file: {result.stderr}")
+    except subprocess.CalledProcessError as e:
+        raise Exception(f"ClamWin scan failed: {e.stderr}")
 
 # def scan_for_explicit_content(file_path):
 #     if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
@@ -1032,7 +1046,7 @@ def like_dislike(file_id):
         decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         username = decoded_token.get('username')
         app.logger.debug(username)
-        table = "user_likes"
+        table = f"{username}_likes"
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
 
@@ -1114,6 +1128,39 @@ def remove_file(file_id):
         app.logger.error(f"An error occurred: {str(e)}")
         return jsonify({'success': False, 'error': 'File removal failed'}), 500
 
+@app.route('/api/remove-folder/<folder_id>', methods=['DELETE'])
+def remove_folder(folder_id):
+    app.logger.debug(folder_id)
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    try:
+        token = request.headers.get('Authorization', '').replace('Bearer ', '')
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        username = decoded_token.get('username')
+
+        folder_path = get_folder_path(folder_id, username)
+        if not folder_path:
+            return jsonify({"error": "Folder not found"}), 404
+
+            shutil.rmtree(folder_path)
+
+            table = f"{username}_folders"
+            delete_folder_query = """
+                DELETE FROM {}
+                WHERE folder_id = %s AND username = %s
+            """.format(table)
+            cursor.execute(delete_folder_query, (folder_id, username))
+            conn.commit()  # Use 'conn' to commit changes
+            cursor.close()
+
+        return jsonify({'success': True, 'message': 'Folder removed successfully'}), 200
+    except jwt.ExpiredSignatureError:
+        return jsonify({'error': 'Token has expired'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'error': 'Invalid token'}), 401
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/upload1', methods=['POST'])
 def upload_files_and_folders():
     token = request.headers.get('Authorization', '').replace('Bearer ', '')
@@ -1121,6 +1168,8 @@ def upload_files_and_folders():
     try:
         decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         username = decoded_token.get('username')
+        parent_folder_id = request.form.get('folderId', '')
+
         if 'files[]' not in request.files:
             return jsonify({'success': False, 'error': 'No files provided'}), 400
 
@@ -1150,6 +1199,12 @@ def upload_files_and_folders():
 
             create_file(filename, child_folder_id, username, file_path)
 
+            # clamwin_result = scan_with_clamwin(file_path)
+            #
+            # if clamwin_result["infected"]:
+            #     os.remove(file_path)
+            #     return jsonify({"error": "File is infected with malware", "scan_result": clamwin_result["result"]}), 400
+
         return jsonify({"message": "Files and child folder uploaded successfully"}), 200
     except jwt.ExpiredSignatureError:
         return jsonify({'error': 'Token has expired'}), 401
@@ -1158,6 +1213,27 @@ def upload_files_and_folders():
     finally:
         cursor.close()
 
+
+# def scan_with_clamwin(file_path):
+#     clamscan_exe = 'C:/ClamWin/bin/clamscan.exe'
+#     database_path = 'C:/ClamWin/bin/db'
+#
+#     if not os.path.isfile(clamscan_exe):
+#         raise Exception(f"The clamscan executable does not exist: {clamscan_exe}")
+#     if not os.path.isdir(database_path):
+#         raise Exception(f"The database directory does not exist: {database_path}")
+#     command = [clamscan_exe, '--database=' + database_path, file_path]
+#
+#     try:
+#         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+#         if "FOUND" in result.stdout:
+#             return {"infected": True, "result": result.stdout}
+#         elif "OK" in result.stdout:
+#             return {"infected": False, "result": result.stdout}
+#         else:
+#             raise Exception(f"Error scanning file: {result.stderr}")
+#     except subprocess.CalledProcessError as e:
+#         raise Exception(f"ClamWin scan failed: {e.stderr}")
 def create_folder(username, parent_folder_id=None, parent_folder_name=None):
     folder_name = request.form.get('folderName')
     if not folder_name:
@@ -1224,11 +1300,14 @@ def create_file(file_name, folder_id, username, file_path):
     file_size = os.path.getsize(file_path)
     file_id = str(uuid.uuid4())
     user_id = request.form.get('user_id')
+    description = request.form.get('description')
+    publish = request.form.get('publish')
+    publish = "1" if publish.lower() == "true" else "0"
     table = f"{username}_files"
     cursor.execute("""
-        INSERT INTO {} (file_id, file_name, folder_id, file_size, username, file_path, user_id)
-        VALUES (%s, %s, %s, %s, %s, %s , %s)
-    """.format(table), (file_id, file_name, folder_id, file_size, username, file_path, user_id))
+        INSERT INTO {} (file_id, file_name, folder_id, file_size, username, file_path, user_id, description, is_public)
+        VALUES (%s, %s, %s, %s, %s, %s, %s ,%s, %s)
+    """.format(table), (file_id, file_name, folder_id, file_size, username, file_path, user_id, description, publish))
 
     db.commit()
     cursor.close()
@@ -1319,6 +1398,39 @@ def download_file(file_id):
         return jsonify({'error': 'Invalid token'}), 401
     finally:
         cursor.close()
+
+@app.route('/api/download/private/<file_id>', methods=['GET'])
+def download_file_private(file_id):
+    token = request.headers.get('Authorization', '').replace('Bearer ', '')
+
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        username = decoded_token['username']
+
+        table = f"{username}_files"
+
+        cursor = db.cursor(dictionary=True)
+        query = "SELECT file_path FROM {} WHERE file_id = %s".format(table)
+        cursor.execute(query, (file_id,))
+        file_info = cursor.fetchone()
+
+        if file_info:
+            file_path = file_info['file_path']
+
+            if os.path.exists(file_path):
+                return send_file(file_path, as_attachment=True)
+            else:
+                return jsonify({'success': False, 'error': 'File not found on the server'}), 404
+        else:
+            return jsonify({'success': False, 'error': 'File not found in the database'}), 404
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({'error': 'Token has expired'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'error': 'Invalid token'}), 401
+    finally:
+        cursor.close()
+
 
 
 
@@ -1714,6 +1826,43 @@ def subscribe():
             return jsonify({"success": False, "error": "Already subscribed"}), 400
 
         cursor.execute("INSERT INTO subscribe (subscriber_id, target_user_id) VALUES (%s, %s)", (subscriber_id, target_user_id))
+        db.commit()
+
+        return jsonify({"success": True})
+
+    finally:
+        cursor.close()
+
+@app.route('/api/unsubscribe', methods=['POST'])
+def unsubscribe():
+    try:
+        data = request.get_json()
+        subscriber_username = data.get('subscriberUsername')
+        target_username = data.get('targetUsername')
+
+        if not subscriber_username or not target_username:
+            return jsonify({"success": False, "error": "Invalid data"}), 400
+
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT user_id FROM users WHERE username = %s", (subscriber_username,))
+        subscriber_user = cursor.fetchone()
+        cursor.execute("SELECT user_id FROM users WHERE username = %s", (target_username,))
+        target_user = cursor.fetchone()
+
+        if not subscriber_user or not target_user:
+            return jsonify({"success": False, "error": "Invalid usernames"}), 400
+
+        subscriber_id = subscriber_user['user_id']
+        target_user_id = target_user['user_id']
+
+        cursor.execute("SELECT * FROM subscribe WHERE subscriber_id = %s AND target_user_id = %s", (subscriber_id, target_user_id))
+        existing_subscription = cursor.fetchone()
+
+        if not existing_subscription:
+            return jsonify({"success": False, "error": "Subscription does not exist"}), 400
+
+        cursor.execute("DELETE FROM subscribe WHERE subscriber_id = %s AND target_user_id = %s", (subscriber_id, target_user_id))
         db.commit()
 
         return jsonify({"success": True})

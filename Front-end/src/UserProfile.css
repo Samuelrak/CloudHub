@@ -155,6 +155,13 @@
     left: 350px;
   }
 
+  .vertical-line3 {
+    border-left: 15px solid #000; 
+    height: 1500px;
+    position: absolute;
+    left: 370px;
+  }
+
   
   .heatmap-container {
     position: absolute;
@@ -188,7 +195,7 @@
   .heatmap-cell.level-4 { background-color: #196127; }
 
   .recent-upload {
-    background-color: red; 
+    background-color: rgb(255, 255, 255); 
   }
   
   .medium-upload {
@@ -200,7 +207,7 @@
   }
 
   .heatmap-cell-light {
-    background-color: #ff0000; 
+    background-color: #aaaaaa; 
   }
   
   .heatmap-cell-medium {
